@@ -1,5 +1,7 @@
 import React, { useRef, useState,useEffect } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
+import { Moon } from "./assets/moon";
+import {Sun} from "./assets/sun"
 
 const App = () =>{
   const updateScene = () => {
@@ -67,28 +69,50 @@ const App = () =>{
         },
       ],
       appState: {
-        viewBackgroundColor: "#edf2ff",
+        viewBackgroundColor: "#ffffff",
       },
     };
     excalidrawAPI.updateScene(sceneData);
   };
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(()=>{
+      localStorage.setItem('theme',theme);
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+      document.body.style.backgroundColor = "#000000"
+  },[theme])
+
+  const toggleTheme = ()=>{
+    setTheme(theme === 'light' ? 'dark':'light');
+}
 
   return (
-    <div className="flex flex-row w-full" >
-      <div>
+      <div className="flex flex-row w-full flex-grow h-full bg-white dark:bg-[#161616]" >
+        <div className="flex-1 p-8 border-r flex flex-col gap-2 ">
+          <h1 className="text-xl dark:text-white"> KAFKA VISUALISATION</h1>
+          <p className="mt-4 dark:text-white">Enter kafka topology : </p>
+          <textarea 
+            className="flex min-h-[600px] max-h-[800px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
+            dark:text-white" >
 
-        <p style={{ fontSize: "16px" }}>Enter kafka topology </p>
-        <textarea ></textarea>
-        <button className="custom-button" onClick={updateScene}>
-          Update Scene
-        </button>
-      </div>
-      <div className="h-[800px] w-[800px]">
+          </textarea>
+          <button className="border dark:text-white hover:dark:bg-gray-800 p-1 rounded-md cursor-pointer hover:bg-gray-100" onClick={updateScene}>
+            Update Scene
+          </button>
+        <div>
 
-        <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)} />
+          <button className="border p-1 dark:text-white hover:dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-100" onClick={toggleTheme} >
+            {localStorage.theme==="light"? <Sun width="18" height="18" />:<Moon width="18" height="18 "/> }
+            </button>
+          </div>
+        </div>
+
+        <div className="h-[100vh] w-[80vw]">
+
+          <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)} theme={theme} />
+        </div>
       </div>
-    </div>
   );
 }
 export default App
