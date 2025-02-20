@@ -1,9 +1,12 @@
 {
-  "name": "kafka_json",
-  "private": true,
-  "version": "0.0.0",
+  "name": "Kafka-visualization",
+  "private": false,
+  "version": "0.0.1",
+  "homepage": "https://michelin-ensimag.github.io/Kafka-visualization/",
   "type": "module",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -25,6 +28,7 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
+    "gh-pages": "^6.3.0",
     "globals": "^15.14.0",
     "vite": "^6.1.0"
   }

@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/Kafka-visualization",
   plugins: [react(),tailwindcss(),],
   define: {
     'process.env': {}
