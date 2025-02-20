@@ -110,13 +110,13 @@ function deepEqual(obj1, obj2) {
 }
 
   return (
-      <div className="flex flex-row w-full flex-grow h-full bg-white dark:bg-[#161616]" >
-        <div className="flex-1 p-8 border-r flex flex-col gap-2 ">
+      <div className="flex flex-col w-full flex-grow h-full bg-white dark:bg-[#161616] md:flex-row" >
+        <div className="flex-1 p-8 border-r flex flex-col gap-2 max-h-[40vh] md:max-h-[100vh] h-[40vh] md:h-auto">
           <h1 className="text-xl dark:text-white"> KAFKA VISUALISATION</h1>
           <p className="mt-4 dark:text-white">Enter kafka topology : </p>
           <textarea 
-            className="flex min-h-[600px] max-h-[800px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-            dark:text-white" >
+            className="flex h-[30vh] md:h-auto md:min-h-[600px] md:max-h-[800px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
+            dark:text-white resize-none md:resize-y" >
 
           </textarea>
           <button className="border dark:text-white hover:dark:bg-gray-800 p-1 rounded-md cursor-pointer hover:bg-gray-100" onClick={updateScene}>
@@ -130,7 +130,7 @@ function deepEqual(obj1, obj2) {
           </div>
         </div>
 
-        <div className="h-[100vh] w-[80vw]">
+        <div className="h-[60vh] w-[100vw] md:h-[100vh] md:w-[80vw]">
 
           <Excalidraw initialData={{libraryItems: kstdLibLocal}} excalidrawAPI={(api) => setExcalidrawAPI(api)} theme={theme} />
         </div>
