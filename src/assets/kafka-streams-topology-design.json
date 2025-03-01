@@ -1,4 +1,8 @@
-export const kstdLibLocal = [
+{
+  "type": "excalidrawlib",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "libraryItems": [
     {
       "status": "published",
       "elements": [
@@ -34820,5 +34824,4 @@ export const kstdLibLocal = [
       "name": "KSTD Watermark"
     }
   ]
-
-  
+}
