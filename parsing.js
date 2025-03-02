@@ -8,7 +8,7 @@ function convertTopoToDot(topo) {
 
 	// dirty but quick parsing
 	lines.forEach(line => {
-		let sub = /Sub-topology: ([0-9]*)/; //C PAS FAIT AVEC KAFKA, OKKKKKKK
+		let sub = /Sub-topology: ([0-9]*)/; //La regexp pour les sub top
 		let match = sub.exec(line);  //ca cherche si la regexp est trouvée dans la line
 
 		if (match) { // La dedans on crée un sub-topology
@@ -26,12 +26,12 @@ function convertTopoToDot(topo) {
 			return;
 		}
 
-		match = /(Source\:|Processor\:|Sink:)\s+(\S+)\s+\((topics|topic|stores)\:(.*)\)/.exec(line)
+		match = /(Source\:|Processor\:|Sink:)\s+(\D+)(\d+)\s+\((topics|topic|stores)\:(.*)\)/.exec(line) 
 
-		if (match) { //Processeurs, toussa
-			entityName = processName(match[2]);
-			let type = match[3]; // source, processor or sink
-			let linkedNames = match[4];
+		if (match) { 
+			entityName = processName(match[2]); //le nom du boug (faut séparer son idendité de son numéro)
+			let type = match[3]; // topic
+			let linkedNames = match[4]; // le truc topic
 			linkedNames = linkedNames.replace(/\[|\]/g, '');
 			linkedNames.split(',').forEach(linkedName => {
 				linkedName = processName(linkedName.trim());
