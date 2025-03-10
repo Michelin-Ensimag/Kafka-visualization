@@ -1,11 +1,11 @@
 import {Node} from "../node"
 
-export class SelectKey extends Node{
+export class TopicAdvanced extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "selectKey"
+        return "Topic Advanced"
     }
 }
