@@ -1,0 +1,28 @@
+Topologies:
+   Sub-topology: 0
+    Source: KSTREAM-SOURCE-0000000000 (topics: [PARCEL_AVRO])
+      --> KSTREAM-KEY-SELECT-0000000001
+    Processor: KSTREAM-KEY-SELECT-0000000001 (stores: [])
+      --> INNER_JOIN-repartition-filter
+      <-- KSTREAM-SOURCE-0000000000
+    Processor: INNER_JOIN-repartition-filter (stores: [])
+      --> INNER_JOIN-repartition-sink
+      <-- KSTREAM-KEY-SELECT-0000000001
+    Sink: INNER_JOIN-repartition-sink (topic: INNER_JOIN-repartition)
+      <-- INNER_JOIN-repartition-filter
+   Sub-topology: 1
+    Source: INNER_JOIN-repartition-source (topics: [INNER_JOIN-repartition])
+      --> INNER_JOIN
+    Processor: INNER_JOIN (stores: [REFERENTIAL_STORE])
+      --> KSTREAM-MAP-0000000008
+      <-- INNER_JOIN-repartition-source
+    Processor: KSTREAM-MAP-0000000008 (stores: [])
+      --> KSTREAM-SINK-0000000009
+      <-- INNER_JOIN
+    Source: KSTREAM-SOURCE-0000000002 (topics: [REFERENTIAL_RAW])
+      --> KTABLE-SOURCE-0000000003
+    Sink: KSTREAM-SINK-0000000009 (topic: ENRICHED_PARCEL_AVRO)
+      <-- KSTREAM-MAP-0000000008
+    Processor: KTABLE-SOURCE-0000000003 (stores: [REFERENTIAL_STORE])
+      --> none
+      <-- KSTREAM-SOURCE-0000000002
