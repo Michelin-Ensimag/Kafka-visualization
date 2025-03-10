@@ -43,6 +43,11 @@ export function convertTopoToGraph(topo) {
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
             currentNode = getOrCreateNode(nodeName, 'source');
+            if (line.includes('topics:')){
+                const topicStr= line.substring(line.indexOf('[')+1, line.indexOf('['));
+                const topicNode=getOrCreateNode(topicNode, 'topic');
+                topicNode.addNeighbor(currentNode);
+            }
         } else if (line.startsWith('Processor:')) {
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
@@ -55,7 +60,7 @@ export function convertTopoToGraph(topo) {
                     const storeName = processName(store);
                     if (storeName) {
                         const storeNode = getOrCreateNode(storeName, 'store');
-                        storeNode.addNeighbor(currentNode);
+                        currentNode.addNeighbor(storeNode);
                     }
                 }
             }
@@ -63,6 +68,12 @@ export function convertTopoToGraph(topo) {
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
             currentNode = getOrCreateNode(nodeName, 'sink');
+            if (line.includes('topic:')){
+                const topicStr= line.substring(line.indexOf('[')+1, line.indexOf('['));
+                const topicNode=getOrCreateNode(topicNode, 'topic');
+                currentNode.addNeighbor(topicNode);
+            }
+
         } else if (line.includes('-->')) {
             const targetName = processName(line.substring(line.indexOf('-->') + 3));
             if (targetName && currentNode) {
