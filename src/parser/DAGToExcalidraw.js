@@ -42,12 +42,12 @@ export function createExcalidrawJSON(startNode) {
     }
 
     // Créer les flèches
-    for (let node of result.sortedNodes) {
-        for (let neighbor of node.getNeighbors()) {
-            // Créer une flèche entre les noeuds
-            let start = node.getRectangle().middleRight; // Point de départ (middle right du rectangle)
-            let end = neighbor.getRectangle().middleLeft; // Point d'arrivée (middle left du rectangle)
-            let arrowElement = ArrowGenerator.createArrowJson(start, end, node.id, neighbor.id);
+    // for (let node of result.sortedNodes) {
+    //     for (let neighbor of node.getNeighbors()) {
+    //         // Créer une flèche entre les noeuds
+    //         let start = node.getRectangle().middleRight; // Point de départ (middle right du rectangle)
+    //         let end = neighbor.getRectangle().middleLeft; // Point d'arrivée (middle left du rectangle)
+    //         let arrowElement = ArrowGenerator.createArrowJson(start, end, node.id, neighbor.id);
 
             // Ajouter la flèche aux boundElements des noeuds
             DAGToExcalidraw.addBoundedElement(node.getJson(), arrowElement);
