@@ -1,4 +1,8 @@
 import { KStreamSourceNode,Node } from '../Node/node.js';
+import { SelectKey } from '../Node/ParentNode/SelectKey.js';
+import { TopicSimple } from '../Node/ParentNode/TopicSimple.js';
+import { TopicAdvanced } from '../Node/ParentNode/TopicAdvanced.js';
+import  {Map as MapNode} from "../Node/ParentNode/Map.js"
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -7,6 +11,7 @@ export function processName(n) {
 
 export function getOrCreateNode(n, type) {
     const processedName = processName(n);
+    console.log("name ? ", processedName, type)
     if (!nodeMap.has(processedName)) {
         let node;
         switch (type.toLowerCase()) {
@@ -14,16 +19,20 @@ export function getOrCreateNode(n, type) {
                 node = new KStreamSourceNode(processedName);
                 break;
             case 'processor':
-                node = new Node(`Proc:${processedName}`);
+                console.log("processor ?")
+                node = new MapNode(`Proc:${processedName}`);
                 break;
             case 'sink':
-                node = new Node(`Sink:${processedName}`);
+                node = new KStreamSourceNode(`Sink:${processedName}`);
                 break;
             case 'store':
                 node = new Node(`Store:${processedName}`);
                 break;
+            case 'topic':
+                node = new TopicAdvanced(`${processedName}`)
+                break;
             default:
-                node = new Node(processedName);
+                node = new SelectKey(processedName);
         }
         nodeMap.set(processedName, node);
     }
@@ -67,7 +76,20 @@ export function convertTopoToGraph(topo) {
     const lines = topo.split('\n');
     let currentNode = null;
 
+    const nodeLines = [];
+    const arrowLines = [];
     for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+        
+        if (line.includes('-->') || line.includes('<--')) {
+          arrowLines.push(line);
+        } else {
+          nodeLines.push(line);
+        }
+      }
+
+    for (let line of nodeLines) {
         line = line.trim();
         if (!line) continue;
 
@@ -83,6 +105,7 @@ export function convertTopoToGraph(topo) {
                 topicNode.addNeighbor(currentNode);
             }
         } else if (line.startsWith('Processor:')) {
+            console.log("zek thkhrztkz rhkhb\n")
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
             currentNode = getOrCreateNode(nodeName, 'processor');
@@ -110,7 +133,55 @@ export function convertTopoToGraph(topo) {
                 topicNode.addNeighbor(currentNode);
             }
 
-        } else if (line.includes('-->')) {
+        } else {
+            console.log('Unknown line:', line);
+        }
+    }
+
+    for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+
+        console.log('convertTopoToGraphLine', line);
+        if (line.startsWith('Source:')) {
+            const parts = line.split(/\s+/, 3);
+            const nodeName = processName(parts[1]);
+            currentNode = getOrCreateNode(nodeName, 'source');
+            // Handle topics with or without brackets
+            const topics = extractTopics(line);
+            for (let topic of topics) {
+                const topicNode = getOrCreateNode(topic, 'topic');
+                topicNode.addNeighbor(currentNode);
+            }
+        } else if (line.startsWith('Processor:')) {
+            console.log("zek thkhrztkz rhkhb\n")
+            const parts = line.split(/\s+/, 3);
+            const nodeName = processName(parts[1]);
+            currentNode = getOrCreateNode(nodeName, 'processor');
+
+            if (line.includes('stores:')) {
+                const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+                const stores = storesStr.split(',');
+                for (let store of stores) {
+                    const storeName = processName(store);
+                    if (storeName) {
+                        const storeNode = getOrCreateNode(storeName, 'store');
+                        currentNode.addNeighbor(storeNode);
+                    }
+                }
+            }
+        } else if (line.startsWith('Sink:')) {
+            const parts = line.split(/\s+/, 3);
+            const nodeName = processName(parts[1]);
+            currentNode = getOrCreateNode(nodeName, 'sink');
+
+            // Handle topics with or without brackets
+            const topics = extractTopics(line);
+            for (let topic of topics) {
+                const topicNode = getOrCreateNode(topic, 'topic');
+                topicNode.addNeighbor(currentNode);
+            }}
+        else if (line.includes('-->')) {
             const targetName = processName(line.substring(line.indexOf('-->') + 3));
             if (targetName && currentNode) {
                 const targetNode = getOrCreateNode(targetName, 'default');

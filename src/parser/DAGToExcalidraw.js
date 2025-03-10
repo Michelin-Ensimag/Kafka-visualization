@@ -49,18 +49,16 @@ export function createExcalidrawJSON(startNode) {
     //         let end = neighbor.getRectangle().middleLeft; // Point d'arrivée (middle left du rectangle)
     //         let arrowElement = ArrowGenerator.createArrowJson(start, end, node.id, neighbor.id);
 
-            // Ajouter la flèche aux boundElements des noeuds
-            DAGToExcalidraw.addBoundedElement(node.getJson(), arrowElement);
-            DAGToExcalidraw.addBoundedElement(neighbor.getJson(), arrowElement);
-            // Ajouter la flèche aux éléments
-            elements.push(arrowElement);
-        }
-    }
+    //         // Ajouter la flèche aux boundElements des noeuds
+    //         DAGToExcalidraw.addBoundedElement(node.getJson(), arrowElement);
+    //         DAGToExcalidraw.addBoundedElement(neighbor.getJson(), arrowElement);
+    //         // Ajouter la flèche aux éléments
+    //         elements.push(arrowElement);
+    //     }
+    // }
 
     for (let node of result.sortedNodes) {
-        for (let obj of node.getAllJsonElements()) {
-            elements.push(obj);
-        }
+        elements.push(...node.getJson());
     }
     return elements;
 }
