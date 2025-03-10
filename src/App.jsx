@@ -83,7 +83,7 @@ const App = () => {
         <p className="mt-4 dark:text-white">Enter kafka topology : </p>
         <textarea id="topo"
           className="flex h-[30vh] md:h-auto md:min-h-[600px] md:max-h-[800px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-        dark:text-white resize-none md:resize-y" onPaste={handlePaste} placeholder="Paste your kafka topology here"
+        dark:text-white resize-none md:resize-y"  placeholder="Paste your kafka topology here"
           onChange={(e) => setText(e.target.value)}
           value={text}
         >

@@ -30,6 +30,39 @@ export function getOrCreateNode(n, type) {
     return nodeMap.get(processedName);
 };
 
+function extractTopics(line) {
+    // Format: topic: [topic1,topic2] or topics: [topic1,topic2]
+    // or: topic: topic1 or topics: topic1
+    if (line.includes('topic:') || line.includes('topics:')) {
+      let topicPart = '';
+      
+      // Determine if we're dealing with the topic: or topics: part
+      const topicIdx = line.indexOf('topic:');
+      const topicsIdx = line.indexOf('topics:');
+      const startIdx = (topicIdx !== -1) ? topicIdx + 6 : topicsIdx + 7;
+      
+      // Extract the topic portion after topic: or topics:
+      topicPart = line.substring(startIdx).trim();
+      
+      // Handle bracketed format [topic1,topic2]
+      if (topicPart.startsWith('[')) {
+        const endIdx = topicPart.indexOf(']');
+        if (endIdx !== -1) {
+          topicPart = topicPart.substring(1, endIdx);
+        }
+      } else {
+        // Handle non-bracketed format: take until next space or end
+        const spaceIdx = topicPart.indexOf(')');
+        if (spaceIdx !== -1) {
+          topicPart = topicPart.substring(0, spaceIdx);
+        }
+      }
+      return topicPart.split(',').map(t => t.trim()).filter(t => t);
+    }
+    
+    return [];
+  }
+
 export function convertTopoToGraph(topo) {
     const lines = topo.split('\n');
     let currentNode = null;
@@ -43,9 +76,10 @@ export function convertTopoToGraph(topo) {
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
             currentNode = getOrCreateNode(nodeName, 'source');
-            if (line.includes('topics:')){
-                const topicStr= line.substring(line.indexOf('[')+1, line.indexOf('['));
-                const topicNode=getOrCreateNode(topicNode, 'topic');
+            // Handle topics with or without brackets
+            const topics = extractTopics(line);
+            for (let topic of topics) {
+                const topicNode = getOrCreateNode(topic, 'topic');
                 topicNode.addNeighbor(currentNode);
             }
         } else if (line.startsWith('Processor:')) {
@@ -68,10 +102,12 @@ export function convertTopoToGraph(topo) {
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
             currentNode = getOrCreateNode(nodeName, 'sink');
-            if (line.includes('topic:')){
-                const topicStr= line.substring(line.indexOf('[')+1, line.indexOf('['));
-                const topicNode=getOrCreateNode(topicNode, 'topic');
-                currentNode.addNeighbor(topicNode);
+
+            // Handle topics with or without brackets
+            const topics = extractTopics(line);
+            for (let topic of topics) {
+                const topicNode = getOrCreateNode(topic, 'topic');
+                topicNode.addNeighbor(currentNode);
             }
 
         } else if (line.includes('-->')) {
