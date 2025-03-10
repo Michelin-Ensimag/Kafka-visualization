@@ -5,6 +5,7 @@ import { Sun } from "./assets/sun";
 import ExcalidrawLogo from "./assets/ks-logo.jsx";
 import kstdlibJSON from "./assets/kafka-streams-topology-design.json"
 import { convertTopoToGraph } from "./parser/parser.js";
+import { createExcalidrawJSON } from "./parser/DAGToExcalidraw.js";
 
 const App = () => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
@@ -68,7 +69,9 @@ const App = () => {
   const onSubmit = (event) => {
     event.preventDefault();
     console.log('onSubmit', text);
-    convertTopoToGraph(text);
+    let topos =convertTopoToGraph(text);
+    console.log("convert topo",topos);
+    console.log("json",createExcalidrawJSON(topos[1]));
   };
 
   const handlePaste = (event) => {
