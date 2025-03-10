@@ -13,6 +13,21 @@ const App = () => {
   const [text, setText] = useState('');
   const [excalidrawLibrary] = useState(null);
 
+  let dictionary = {};
+  dictionary = kstdlibJSON["libraryItems"].forEach(item => {
+      dictionary[item["name"]] = item["elements"];
+    });
+    for (let cle in dictionary) {
+      for (let key in dictionary[cle]) {
+        let elem = dictionary[cle][key]
+        let elem_temp = convertToExcalidrawElements([elem])[0]
+        console.log("cle :", elem)
+        if (elem["type"] === "text") {
+          elem["baseline"] = elem_temp["baseline"]
+        }
+      }
+      dictionary.push(...dictionary[cle])
+    }
 
   const updateScene = () => {
     const sceneData = {
@@ -69,9 +84,9 @@ const App = () => {
   const onSubmit = (event) => {
     event.preventDefault();
     console.log('onSubmit', text);
-    let topos =convertTopoToGraph(text);
-    console.log("convert topo",topos);
-    console.log("json",createExcalidrawJSON(topos[1]));
+    let topos = convertTopoToGraph(text);
+    console.log("convert topo", topos);
+    console.log("json", createExcalidrawJSON(topos[1]));
   };
 
   const handlePaste = (event) => {
