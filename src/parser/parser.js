@@ -31,14 +31,13 @@ export function getOrCreateNode(n, type) {
 };
 
 export function convertTopoToGraph(topo) {
-    
     const lines = topo.split('\n');
     let currentNode = null;
-    
+
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
-        
+
         console.log('convertTopoToGraphLine', line);
         if (line.startsWith('Source:')) {
             const parts = line.split(/\s+/, 3);
@@ -48,7 +47,7 @@ export function convertTopoToGraph(topo) {
             const parts = line.split(/\s+/, 3);
             const nodeName = processName(parts[1]);
             currentNode = getOrCreateNode(nodeName, 'processor');
-            
+
             if (line.includes('stores:')) {
                 const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
                 const stores = storesStr.split(',');
@@ -70,12 +69,17 @@ export function convertTopoToGraph(topo) {
                 const targetNode = getOrCreateNode(targetName, 'default');
                 currentNode.addNeighbor(targetNode);
             }
-        }
-        else{
-            console.log('Unknown line:',line);
+        } else if (line.includes('<--')) {
+            const sourceName = processName(line.substring(line.indexOf('<--') + 3));
+            if (sourceName && currentNode) {
+                const sourceNode = getOrCreateNode(sourceName, 'default');
+                sourceNode.addNeighbor(currentNode);
+            }
+        } else {
+            console.log('Unknown line:', line);
         }
     }
-    console.log("MAP",[...nodeMap.values()])
+    console.log("MAP", [...nodeMap.values()]);
     return Array.from(nodeMap.values());
 }
 
