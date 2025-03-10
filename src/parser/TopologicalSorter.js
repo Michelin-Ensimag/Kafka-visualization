@@ -1,14 +1,31 @@
 class TopologicalSorter {
-    static topologicalSort(startNode) {
+    static topologicalSort(graph) {
         // Track in-degree (number of incoming edges) for each node
         let inDegree = new Map();
         let queue = [];
 
         // Compute in-degrees
-        TopologicalSorter.computeInDegrees(startNode, inDegree);
+        // Initialize in-degree counts for all nodes
+        for (const node of graph) {
+            inDegree.set(node, 0);
+        }
+
+        // Calculate in-degrees by iterating through all nodes and their neighbors
+        for (const node of graph) {
+            for (const neighbor of node.getNeighbors()) {
+                inDegree.set(neighbor, (inDegree.get(neighbor) || 0) + 1);
+            }
+        }
+
+        // Find all nodes with zero in-degree
+        for (const [node, degree] of inDegree.entries()) {
+            if (degree === 0) {
+                queue.push(node);
+            }
+        }
 
         // Find nodes with zero in-degree to start
-        TopologicalSorter.findZeroInDegreeNodes(inDegree, queue);
+        // TopologicalSorter.findZeroInDegreeNodes(inDegree, queue);
 
         // Topological sorting and distance tracking
         let sortedNodes = [];

@@ -3,41 +3,70 @@ import { SelectKey } from '../Node/ParentNode/SelectKey.js';
 import { TopicSimple } from '../Node/ParentNode/TopicSimple.js';
 import { TopicAdvanced } from '../Node/ParentNode/TopicAdvanced.js';
 import  {Map as MapNode} from "../Node/ParentNode/Map.js"
+import {Filter} from "../Node/ParentNode/Filter.js";
+import {MapValues} from "../Node/ParentNode/MapValues.js";
+import {GroupBy} from "../Node/ParentNode/GroupBy.js";
+import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
+import {Count} from "../Node/ParentNode/Count.js";
+import {Peek} from "../Node/ParentNode/Peek.js";
+import {ForEach} from "../Node/ParentNode/ForEach.js";
 
 let nodeMap = new Map();
 export function processName(n) {
     return n.trim().replace(/"/g, '').replace(/\s+/g, '');
 }
 
-export function getOrCreateNode(n, type) {
-    const processedName = processName(n);
-    console.log("name ? ", processedName, type)
+function getOrCreateNode(name, type) {
+    const processedName = processName(name);
+    console.log("type", type);
     if (!nodeMap.has(processedName)) {
         let node;
         switch (type.toLowerCase()) {
             case 'source':
+            case 'sink':
+            case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
-            case 'processor':
-                console.log("processor ?")
-                node = new MapNode(`Proc:${processedName}`);
-                break;
-            case 'sink':
-                node = new KStreamSourceNode(`Sink:${processedName}`);
-                break;
-            case 'store':
-                node = new Node(`Store:${processedName}`);
+
+            case 'kstream-sink':
+                node = new TopicAdvanced(processedName);
                 break;
             case 'topic':
-                node = new TopicAdvanced(`${processedName}`)
+                node = new TopicAdvanced(processedName);
+                break;
+            case 'kstream-filter':
+                node = new Filter(processedName);
+                break;
+            case 'kstream-mapvalues':
+                node = new MapValues(processedName);
+                break;
+            case 'kstream-key-select':
+                node = new SelectKey(processedName);
+                break;
+            case 'kstream-groupby':
+                node = new GroupBy(processedName);
+                break;
+            case 'kstream-reduce':
+            case 'kstream-aggregate':
+                node = new ReduceAggregate(processedName);
+                break;
+            case 'kstream-count':
+                node = new Count(processedName);
+                break;
+            case 'kstream-peek':
+                node = new Peek(processedName);
+                break;
+            case 'kstream-foreach':
+                node = new ForEach(processedName);
                 break;
             default:
-                node = new SelectKey(processedName);
+                node = new Node(processedName);
+                console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
     }
     return nodeMap.get(processedName);
-};
+}
 
 function extractTopics(line) {
     // Format: topic: [topic1,topic2] or topics: [topic1,topic2]
@@ -72,68 +101,63 @@ function extractTopics(line) {
     return [];
   }
 
-export function convertTopoToGraph(topo) {
-    const lines = topo.split('\n');
+export function convertTopoToGraph(topologyText) {
+    const lines = topologyText.split('\n');
     let currentNode = null;
 
-    const nodeLines = [];
-    const arrowLines = [];
     for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-        
-        if (line.includes('-->') || line.includes('<--')) {
-          arrowLines.push(line);
-        } else {
-          nodeLines.push(line);
-        }
-      }
-
-    for (let line of nodeLines) {
         line = line.trim();
         if (!line) continue;
 
         console.log('convertTopoToGraphLine', line);
+
         if (line.startsWith('Source:')) {
-            const parts = line.split(/\s+/, 3);
-            const nodeName = processName(parts[1]);
-            currentNode = getOrCreateNode(nodeName, 'source');
-            // Handle topics with or without brackets
-            const topics = extractTopics(line);
-            for (let topic of topics) {
-                const topicNode = getOrCreateNode(topic, 'topic');
-                topicNode.addNeighbor(currentNode);
+            const parts = line.match(/Source: (\S+)/);
+            if (parts) {
+                const nodeName = parts[1];
+                currentNode = getOrCreateNode(nodeName, 'source');
+                const topics = extractTopics(line);
+                for (let topic of topics) {
+                    const topicNode = getOrCreateNode(topic, 'topic');
+                    topicNode.addNeighbor(currentNode);
+                }
             }
         } else if (line.startsWith('Processor:')) {
-            console.log("zek thkhrztkz rhkhb\n")
-            const parts = line.split(/\s+/, 3);
-            const nodeName = processName(parts[1]);
-            currentNode = getOrCreateNode(nodeName, 'processor');
+            const parts = line.match(/Processor: (\S+)/);
+            if (parts) {
+                const nodeName = parts[1];
+                // Determine processor type from the name
+                const processorType = nodeName.split('-')
+                    .slice(1, -1) // Take all parts except the first (KSTREAM) and last (numeric ID)
+                    .join('-')    // Join them back with a dash
+                    .toLowerCase(); // Convert to lowercase
 
-            if (line.includes('stores:')) {
-                const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
-                const stores = storesStr.split(',');
-                for (let store of stores) {
-                    const storeName = processName(store);
-                    if (storeName) {
-                        const storeNode = getOrCreateNode(storeName, 'store');
-                        currentNode.addNeighbor(storeNode);
+                currentNode = getOrCreateNode(nodeName, `kstream-${processorType}`);
+
+                if (line.includes('stores:')) {
+                    const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+                    const stores = storesStr.split(',').map(s => s.trim());
+                    for (let store of stores) {
+                        if (store) {
+                            const storeNode = getOrCreateNode(store, 'store');
+                            currentNode.addNeighbor(storeNode);
+                        }
                     }
                 }
             }
         } else if (line.startsWith('Sink:')) {
-            const parts = line.split(/\s+/, 3);
-            const nodeName = processName(parts[1]);
-            currentNode = getOrCreateNode(nodeName, 'sink');
-
-            // Handle topics with or without brackets
-            const topics = extractTopics(line);
-            for (let topic of topics) {
-                const topicNode = getOrCreateNode(topic, 'topic');
-                topicNode.addNeighbor(currentNode);
+            const parts = line.match(/Sink: (\S+)/);
+            if (parts) {
+                const nodeName = parts[1];
+                currentNode = getOrCreateNode(nodeName, 'sink');
+                const topics = extractTopics(line);
+                for (let topic of topics) {
+                    const topicNode = getOrCreateNode(topic, 'topic');
+                    currentNode.addNeighbor(topicNode); // Sink flows to topic
+                }
             }
-
-        } else {
+        }
+         else {
             console.log('Unknown line:', line);
         }
     }
@@ -143,52 +167,58 @@ export function convertTopoToGraph(topo) {
         if (!line) continue;
 
         console.log('convertTopoToGraphLine', line);
+
         if (line.startsWith('Source:')) {
-            const parts = line.split(/\s+/, 3);
-            const nodeName = processName(parts[1]);
-            currentNode = getOrCreateNode(nodeName, 'source');
-            // Handle topics with or without brackets
-            const topics = extractTopics(line);
-            for (let topic of topics) {
-                const topicNode = getOrCreateNode(topic, 'topic');
-                topicNode.addNeighbor(currentNode);
+            const parts = line.match(/Source: (\S+)/);
+            if (parts) {
+                const nodeName = parts[1];
+                currentNode = getOrCreateNode(nodeName, 'source');
+                const topics = extractTopics(line);
+                for (let topic of topics) {
+                    const topicNode = getOrCreateNode(topic, 'topic');
+                    topicNode.addNeighbor(currentNode);
+                }
             }
         } else if (line.startsWith('Processor:')) {
-            console.log("zek thkhrztkz rhkhb\n")
-            const parts = line.split(/\s+/, 3);
-            const nodeName = processName(parts[1]);
-            currentNode = getOrCreateNode(nodeName, 'processor');
+            const parts = line.match(/Processor: (\S+)/);
+            if (parts) {
+                const nodeName = parts[1];
+                // Determine processor type from the name
+                const processorType = nodeName.split('-')[1].toLowerCase();
+                currentNode = getOrCreateNode(nodeName, `kstream-${processorType}`);
 
-            if (line.includes('stores:')) {
-                const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
-                const stores = storesStr.split(',');
-                for (let store of stores) {
-                    const storeName = processName(store);
-                    if (storeName) {
-                        const storeNode = getOrCreateNode(storeName, 'store');
-                        currentNode.addNeighbor(storeNode);
+                if (line.includes('stores:')) {
+                    const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+                    const stores = storesStr.split(',').map(s => s.trim());
+                    for (let store of stores) {
+                        if (store) {
+                            const storeNode = getOrCreateNode(store, 'store');
+                            currentNode.addNeighbor(storeNode);
+                        }
                     }
                 }
             }
         } else if (line.startsWith('Sink:')) {
-            const parts = line.split(/\s+/, 3);
-            const nodeName = processName(parts[1]);
-            currentNode = getOrCreateNode(nodeName, 'sink');
-
-            // Handle topics with or without brackets
-            const topics = extractTopics(line);
-            for (let topic of topics) {
-                const topicNode = getOrCreateNode(topic, 'topic');
-                topicNode.addNeighbor(currentNode);
-            }}
-        else if (line.includes('-->')) {
-            const targetName = processName(line.substring(line.indexOf('-->') + 3));
+            const parts = line.match(/Sink: (\S+)/);
+            if (parts) {
+                const nodeName = parts[1];
+                currentNode = getOrCreateNode(nodeName, 'sink');
+                const topics = extractTopics(line);
+                for (let topic of topics) {
+                    const topicNode = getOrCreateNode(topic, 'topic');
+                    currentNode.addNeighbor(topicNode); // Sink flows to topic
+                }
+            }
+        } else if (line.includes('-->')) {
+            const parts = line.split('-->');
+            const targetName = parts[1].trim().split(/\s+/)[0]; // Get first word after -->
             if (targetName && currentNode) {
                 const targetNode = getOrCreateNode(targetName, 'default');
                 currentNode.addNeighbor(targetNode);
             }
         } else if (line.includes('<--')) {
-            const sourceName = processName(line.substring(line.indexOf('<--') + 3));
+            const parts = line.split('<--');
+            const sourceName = parts[1].trim().split(/\s+/)[0]; // Get first word after <--
             if (sourceName && currentNode) {
                 const sourceNode = getOrCreateNode(sourceName, 'default');
                 sourceNode.addNeighbor(currentNode);

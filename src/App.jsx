@@ -72,7 +72,7 @@ const App = () => {
     console.log('onSubmit', text);
     let topos = convertTopoToGraph(text);
     console.log("convert topo", topos);
-    let elements = createExcalidrawJSON(topos[1])
+    let elements = createExcalidrawJSON(topos )
     console.log("json", elements);
     let sceneData = {
       elements,

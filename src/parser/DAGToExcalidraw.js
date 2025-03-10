@@ -1,8 +1,9 @@
 import { TopologicalSorter } from './TopologicalSorter.js';
+import { ArrowGenerator } from "./ArrowGenerator.js";
 
-export function createExcalidrawJSON(startNode) {
+export function createExcalidrawJSON(graph) {
     let elements = [];
-    const result = TopologicalSorter.topologicalSort(startNode);
+    const result = TopologicalSorter.topologicalSort(graph);
 
     // Grouper les noeuds selon leurs distances
     let nodesByDistance = new Map();
@@ -42,20 +43,22 @@ export function createExcalidrawJSON(startNode) {
     }
 
     // Créer les flèches
-    // for (let node of result.sortedNodes) {
-    //     for (let neighbor of node.getNeighbors()) {
-    //         // Créer une flèche entre les noeuds
-    //         let start = node.getRectangle().middleRight; // Point de départ (middle right du rectangle)
-    //         let end = neighbor.getRectangle().middleLeft; // Point d'arrivée (middle left du rectangle)
-    //         let arrowElement = ArrowGenerator.createArrowJson(start, end, node.id, neighbor.id);
+    for (let node of result.sortedNodes) {
+        for (let neighbor of node.getNeighbors()) {
+            // Créer une flèche entre les noeuds
+            let arrowsPointsStart = node.getBoundaryPoints();
+            let arrowsPointsStop = neighbor.getBoundaryPoints();
+            let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
+            let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
+            let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.id, neighbor.id);
 
-    //         // Ajouter la flèche aux boundElements des noeuds
-    //         DAGToExcalidraw.addBoundedElement(node.getJson(), arrowElement);
-    //         DAGToExcalidraw.addBoundedElement(neighbor.getJson(), arrowElement);
-    //         // Ajouter la flèche aux éléments
-    //         elements.push(arrowElement);
-    //     }
-    // }
+            // Ajouter la flèche aux boundElements des noeuds
+            addBoundedElement(node.getJson(), arrowElement);
+            addBoundedElement(neighbor.getJson(), arrowElement);
+            // Ajouter la flèche aux éléments
+            elements.push(arrowElement);
+        }
+    }
 
     for (let node of result.sortedNodes) {
         elements.push(...node.getJson());
