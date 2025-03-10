@@ -3,7 +3,6 @@ export class Node {
         this.label = label;
         this.neighbors = new Set();
         this.json = {};
-        this.rectangle = {};
     }
 
     addNeighbor(node) {
@@ -16,6 +15,10 @@ export class Node {
 
     getJson() {
         return this.json;
+    }
+
+    generateJson(x, y) {
+        console.log('generateJson not implemented for this Node');
     }
 
 }
