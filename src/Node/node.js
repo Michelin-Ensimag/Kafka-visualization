@@ -172,6 +172,33 @@ export class Node {
 
         return updatedElements;
     }
+
+    getElementsWidth() {
+        let elements = this.json
+        if (!elements || elements.length === 0) return 0;
+
+        // Initialize min and max X values
+        let minX = Infinity;
+        let maxX = -Infinity;
+
+        // Iterate through elements to find the horizontal span
+        elements.forEach((element) => {
+            if (element.isDeleted) return; // Skip deleted elements
+
+            const xLeft = element.x;
+            const xRight = element.x + element.width;
+
+            // Update min and max X
+            minX = Math.min(minX, xLeft);
+            maxX = Math.max(maxX, xRight);
+        });
+
+        // If no valid elements were found, return 0
+        if (minX === Infinity || maxX === -Infinity) return 0;
+
+        // Calculate and return the total width
+        return maxX - minX;
+    }
 }
 
 export class KStreamSourceNode extends Node {

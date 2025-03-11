@@ -21,9 +21,10 @@ export function createExcalidrawJSON(graph) {
     // Paramètres de placement
     let baseX = 50;
     let baseY = 50;
-    let horizontalSpacing = 150;
+    let horizontalSpacing = 80;
     let verticalSpacing = 100;
 
+    let currentX = baseX;
     // Placer les noeuds
     for (let distance of sortedDistances) {
         let nodesAtDistance = nodesByDistance.get(distance);
@@ -32,14 +33,18 @@ export function createExcalidrawJSON(graph) {
         let totalHeight = (nodesAtDistance.length - 1) * verticalSpacing;
         let startY = baseY - totalHeight / 2;
 
+        let maxWidth = 0;
+
         for (let i = 0; i < nodesAtDistance.length; i++) {
             let current = nodesAtDistance[i];
 
-            let x = baseX + distance * horizontalSpacing;
+            let x = currentX;
             let y = startY + i * verticalSpacing;
 
             current.generateJson(x, y);
+            maxWidth = Math.max(maxWidth, current.getElementsWidth());
         }
+        currentX += maxWidth + horizontalSpacing;
     }
 
     // Créer les flèches
