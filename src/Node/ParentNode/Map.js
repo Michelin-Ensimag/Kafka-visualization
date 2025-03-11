@@ -7,7 +7,7 @@ export class Map extends Node{
     }
 
     getName(){
-        console.log("MapValues")
-        return "mapValues"
+        //console.log("MapValues")
+        return "map"
     }
 }

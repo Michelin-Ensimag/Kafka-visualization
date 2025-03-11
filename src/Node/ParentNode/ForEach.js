@@ -7,6 +7,6 @@ export class ForEach extends Node{
     }
 
     getName(){
-        return "foreach"
+        return "forEach"
     }
 }
