@@ -1,3 +1,5 @@
+import {StateStore} from "../Node/ParentNode/StateStore.js";
+
 class TopologicalSorter {
     static topologicalSort(graph) {
         // Track in-degree (number of incoming edges) for each node
@@ -63,41 +65,57 @@ class TopologicalSorter {
             throw new Error("Graph contains a cycle");
         }
 
-        return { sortedNodes, distances };
-    }
-
-    static computeInDegrees(startNode, inDegree) {
-        let visited = new Set();
-        let queue = [startNode];
-
-        while (queue.length > 0) {
-            let current = queue.shift();
-
-            if (visited.has(current)) continue;
-            visited.add(current);
-
-            // Initialize in-degree if not already set
-            if (!inDegree.has(current)) {
-                inDegree.set(current, 0);
-            }
-
-            // Process neighbors
-            for (let neighbor of current.getNeighbors()) {
-                inDegree.set(neighbor, (inDegree.get(neighbor) || 0) + 1);
-
-                if (!visited.has(neighbor)) {
-                    queue.push(neighbor);
+        //post process to have the StateStore node to be on top of the node it is attach and not at the beginning
+        for (const node of graph) {
+            if (node instanceof StateStore && inDegree.get(node) === 0) {
+                // StateStore with no previous nodes should match its neighbor's distance
+                const neighbors = node.getNeighbors();
+                if (neighbors.length > 0) {
+                    // Use the minimum distance of all neighbors
+                    let minNeighborDistance = Infinity;
+                    for (const neighbor of neighbors) {
+                        minNeighborDistance = Math.min(minNeighborDistance, distances.get(neighbor));
+                    }
+                    distances.set(node, minNeighborDistance);
                 }
             }
         }
+
+        return { sortedNodes, distances };
     }
 
-    static findZeroInDegreeNodes(inDegree, queue) {
-        for (let [node, degree] of inDegree.entries()) {
-            if (degree === 0) {
-                queue.push(node);
-            }
-        }
-    }
+    // static computeInDegrees(startNode, inDegree) {
+    //     let visited = new Set();
+    //     let queue = [startNode];
+    //
+    //     while (queue.length > 0) {
+    //         let current = queue.shift();
+    //
+    //         if (visited.has(current)) continue;
+    //         visited.add(current);
+    //
+    //         // Initialize in-degree if not already set
+    //         if (!inDegree.has(current)) {
+    //             inDegree.set(current, 0);
+    //         }
+    //
+    //         // Process neighbors
+    //         for (let neighbor of current.getNeighbors()) {
+    //             inDegree.set(neighbor, (inDegree.get(neighbor) || 0) + 1);
+    //
+    //             if (!visited.has(neighbor)) {
+    //                 queue.push(neighbor);
+    //             }
+    //         }
+    //     }
+    // }
+    //
+    // static findZeroInDegreeNodes(inDegree, queue) {
+    //     for (let [node, degree] of inDegree.entries()) {
+    //         if (degree === 0) {
+    //             queue.push(node);
+    //         }
+    //     }
+    // }
 }
 export { TopologicalSorter };
