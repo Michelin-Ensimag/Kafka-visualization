@@ -90,7 +90,7 @@ export class Node {
 
         // Iterate through this.json to find boundaries
         this.json.forEach((element) => {
-            if (element.isDeleted) return; // Skip deleted elements
+            if (element.isDeleted || element.type==="text") return; // Skip deleted elements
 
             const xLeft = element.x;
             const xRight = element.x + element.width;
