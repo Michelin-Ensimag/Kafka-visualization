@@ -10,6 +10,9 @@ import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
 import {Count} from "../Node/ParentNode/Count.js";
 import {Peek} from "../Node/ParentNode/Peek.js";
 import {ForEach} from "../Node/ParentNode/ForEach.js";
+import {Process} from "../Node/ParentNode/Process.js";
+import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
+import {StateStore} from "../Node/ParentNode/StateStore.js";
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -58,6 +61,12 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-foreach':
                 node = new ForEach(processedName);
+                break;
+            case 'kstream-processor':
+                node = new Process(processedName);
+                break;
+            case 'store':
+                node = new StateStore(processedName);
                 break;
             default:
                 node = new Node(processedName);
@@ -140,7 +149,7 @@ export function convertTopoToGraph(topologyText) {
                     for (let store of stores) {
                         if (store) {
                             const storeNode = getOrCreateNode(store, 'store');
-                            currentNode.addNeighbor(storeNode);
+                            storeNode.addNeighbor(currentNode);
                         }
                     }
                 }
@@ -193,7 +202,7 @@ export function convertTopoToGraph(topologyText) {
                     for (let store of stores) {
                         if (store) {
                             const storeNode = getOrCreateNode(store, 'store');
-                            currentNode.addNeighbor(storeNode);
+                            storeNode.addNeighbor(currentNode);
                         }
                     }
                 }

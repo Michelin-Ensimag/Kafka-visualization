@@ -1,12 +1,12 @@
 import {Node} from "../node"
 
-export class TopicAdvanced extends Node{
+export class StateStore extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "Topic Advanced"
+        return "State Store"
     }
 
     generateJson(x, y) {
@@ -14,7 +14,7 @@ export class TopicAdvanced extends Node{
         for (let i = 0; i < this.json.length; i++) {
             let elem = this.json[i];
 
-            if (elem.type === "text" ) {
+            if (elem.type === "text" && elem.text === "store-name") {
                 console.log("found the element");
                 elem.text = this.label;
                 elem.originalText = this.label;

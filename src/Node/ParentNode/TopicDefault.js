@@ -1,12 +1,11 @@
 import {Node} from "../node"
 
-
-export class Process extends Node{
+export class TopicDefault extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "process"
+        return "Topic Default"
     }
 }
