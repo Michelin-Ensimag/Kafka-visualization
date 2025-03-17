@@ -8,6 +8,7 @@ export class Node {
         this.label = label;
         this.neighbors = new Set();
         this.json = {};
+        this.containerElement = {}
     }
 
     getName(){
@@ -209,6 +210,39 @@ export class Node {
 
         // Calculate and return the total width
         return maxX - minX;
+    }
+
+    getNodeIdForArrow() {
+        // Assuming `this.json` contains the array of elements (like in the structure you shared)
+        let elem = this.json;
+    
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rect'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.containerElement = null; // If no ellipses or rectangles are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the largest area (width * height)
+        let largestShape = shapes.reduce((maxShape, currentShape) => {
+            let maxArea = maxShape.width * maxShape.height;
+            let currentArea = currentShape.width * currentShape.height;
+    
+            // Compare areas and return the one with the larger area
+            return currentArea > maxArea ? currentShape : maxShape;
+        });
+    
+        // Set this.containerElement to the largest shape element
+        this.containerElement = largestShape;
+    
+        // Return the ID of the largest shape
+        return largestShape.id;
+    }
+    
+
+    getContainerElement(){
+        return this.containerElement
     }
 }
 
