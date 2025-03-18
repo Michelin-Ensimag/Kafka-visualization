@@ -1,12 +1,12 @@
 import {Node} from "../node"
 
 
-export class Repartitioned extends Node{
+export class ExternalSystemAlt2 extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "repartitioned"
+        return "External System (alt2)"
     }
 }

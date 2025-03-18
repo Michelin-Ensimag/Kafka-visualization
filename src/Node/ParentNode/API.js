@@ -1,12 +1,12 @@
 import {Node} from "../node"
 
 
-export class Repartitioned extends Node{
+export class API extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "repartitioned"
+        return "API"
     }
 }

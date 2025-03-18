@@ -9,6 +9,7 @@ export class Node {
         this.label = label;
         this.neighbors = new Set();
         this.json = {};
+        this.containerElement = {}
     }
 
     getName(){
@@ -117,39 +118,49 @@ export class Node {
 
     updateElementIds(elements) {
         if (!elements || elements.length === 0) return elements;
-
+    
         // Map to track old IDs to new IDs
         const idMap = new Map();
-
+    
         // Function to generate a new unique ID
         const generateNewId = () => {
             return 'id_' + Math.random().toString(36).substr(2, 9); // Simple random ID
         };
-
+    
         // First pass: Assign new IDs to each element and build the mapping
         elements.forEach((element) => {
+            // Check if the element itself has an ID, and assign a new one if not already done
             if (element.id && !idMap.has(element.id)) {
                 idMap.set(element.id, generateNewId());
             }
+    
+            // Check if the groupIds exist and update them with new IDs if necessary
+            if (element.groupIds && Array.isArray(element.groupIds)) {
+                element.groupIds.forEach((groupId) => {
+                    if (groupId && !idMap.has(groupId)) {
+                        idMap.set(groupId, generateNewId());
+                    }
+                });
+            }
         });
-
+    
         // Deep clone the elements to avoid mutating the original array
         const updatedElements = JSON.parse(JSON.stringify(elements));
-
+    
         // Second pass: Update all ID references
         updatedElements.forEach((element) => {
             // Update the element's own ID
             if (element.id && idMap.has(element.id)) {
                 element.id = idMap.get(element.id);
             }
-
+    
             // Update references in groupIds
             if (element.groupIds && Array.isArray(element.groupIds)) {
                 element.groupIds = element.groupIds.map((groupId) =>
                     idMap.has(groupId) ? idMap.get(groupId) : groupId
                 );
             }
-
+    
             // Update references in boundElements
             if (element.boundElements && Array.isArray(element.boundElements)) {
                 element.boundElements = element.boundElements.map((bound) => {
@@ -159,20 +170,21 @@ export class Node {
                     return bound;
                 });
             }
-
+    
             // Update containerId if it exists
             if (element.containerId && idMap.has(element.containerId)) {
                 element.containerId = idMap.get(element.containerId);
             }
-
+    
             // Update frameId if it exists
             if (element.frameId && idMap.has(element.frameId)) {
                 element.frameId = idMap.get(element.frameId);
             }
         });
-
+    
         return updatedElements;
     }
+    
 
     getElementsWidth() {
         let elements = this.json
@@ -199,6 +211,39 @@ export class Node {
 
         // Calculate and return the total width
         return maxX - minX;
+    }
+
+    getNodeIdForArrow() {
+        // Assuming `this.json` contains the array of elements (like in the structure you shared)
+        let elem = this.json;
+    
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rect'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.containerElement = null; // If no ellipses or rectangles are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the largest area (width * height)
+        let largestShape = shapes.reduce((maxShape, currentShape) => {
+            let maxArea = maxShape.width * maxShape.height;
+            let currentArea = currentShape.width * currentShape.height;
+    
+            // Compare areas and return the one with the larger area
+            return currentArea > maxArea ? currentShape : maxShape;
+        });
+    
+        // Set this.containerElement to the largest shape element
+        this.containerElement = largestShape;
+    
+        // Return the ID of the largest shape
+        return largestShape.id;
+    }
+    
+
+    getContainerElement(){
+        return this.containerElement
     }
 }
 

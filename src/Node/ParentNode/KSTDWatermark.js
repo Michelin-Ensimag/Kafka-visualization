@@ -1,12 +1,12 @@
 import {Node} from "../node"
 
 
-export class Repartitioned extends Node{
+export class KSTDWaterMark extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "repartitioned"
+        return "KSTD WaterMark"
     }
 }
