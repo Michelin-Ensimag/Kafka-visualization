@@ -1,6 +1,7 @@
 import { renderToString } from "react-dom/server";
 import kstdlibJSON from "../assets/kafka-streams-topology-design.json"
 import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
+import {v4 as uuidv4} from 'uuid';
 
 export class Node {
 
@@ -208,5 +209,11 @@ export class KStreamSourceNode extends Node {
 
     getName(){
         return "KStream"
+    }
+
+    generateJson(x, y) {
+        super.generateJson(x, y);
+        console.log(this.label, this.json)
+        return this.json;
     }
 }

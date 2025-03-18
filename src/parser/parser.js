@@ -135,13 +135,21 @@ export function convertTopoToGraph(topologyText) {
             const parts = line.match(/Processor: (\S+)/);
             if (parts) {
                 const nodeName = parts[1];
-                // Determine processor type from the name
-                const processorType = nodeName.split('-')
-                    .slice(1, -1) // Take all parts except the first (KSTREAM) and last (numeric ID)
-                    .join('-')    // Join them back with a dash
-                    .toLowerCase(); // Convert to lowercase
 
-                currentNode = getOrCreateNode(nodeName, `kstream-${processorType}`);
+                // Determine processor type from the name
+                let processorType;
+                if (nodeName.includes("-")) {
+                    processorType = nodeName
+                        .split('-')
+                        .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
+                        .join('-')     // Join them back with a dash
+                        .toLowerCase(); // Convert to lowercase
+                } else {
+                    // Fallback for cases like "INNER_JOIN"
+                    processorType = nodeName.toLowerCase();
+                }
+
+                currentNode = getOrCreateNode(nodeName, processorType);
 
                 if (line.includes('stores:')) {
                     const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
@@ -154,6 +162,7 @@ export function convertTopoToGraph(topologyText) {
                     }
                 }
             }
+
         } else if (line.startsWith('Sink:')) {
             const parts = line.match(/Sink: (\S+)/);
             if (parts) {
@@ -192,9 +201,21 @@ export function convertTopoToGraph(topologyText) {
             const parts = line.match(/Processor: (\S+)/);
             if (parts) {
                 const nodeName = parts[1];
+
                 // Determine processor type from the name
-                const processorType = nodeName.split('-')[1].toLowerCase();
-                currentNode = getOrCreateNode(nodeName, `kstream-${processorType}`);
+                let processorType;
+                if (nodeName.includes("-")) {
+                    processorType = nodeName
+                        .split('-')
+                        .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
+                        .join('-')     // Join them back with a dash
+                        .toLowerCase(); // Convert to lowercase
+                } else {
+                    // Fallback for cases like "INNER_JOIN"
+                    processorType = nodeName.toLowerCase();
+                }
+
+                currentNode = getOrCreateNode(nodeName, processorType);
 
                 if (line.includes('stores:')) {
                     const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));

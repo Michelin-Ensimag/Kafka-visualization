@@ -15,7 +15,6 @@ export class TopicAdvanced extends Node{
             let elem = this.json[i];
 
             if (elem.type === "text" ) {
-                console.log("found the element");
                 elem.text = this.label;
                 elem.originalText = this.label;
             }

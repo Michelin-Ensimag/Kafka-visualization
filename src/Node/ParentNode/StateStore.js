@@ -15,7 +15,6 @@ export class StateStore extends Node{
             let elem = this.json[i];
 
             if (elem.type === "text" && elem.text === "store-name") {
-                console.log("found the element");
                 elem.text = this.label;
                 elem.originalText = this.label;
             }
