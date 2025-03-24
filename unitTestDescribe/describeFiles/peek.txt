@@ -1,0 +1,7 @@
+Topologies:
+   Sub-topology: 0
+    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])
+      --> KSTREAM-PEEK-0000000001
+    Processor: KSTREAM-PEEK-0000000001 (stores: [])
+      --> none
+      <-- KSTREAM-SOURCE-0000000000

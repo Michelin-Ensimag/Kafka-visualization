@@ -1,0 +1,10 @@
+Topologies:
+   Sub-topology: 0
+    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])
+      --> KSTREAM-FLATMAP-0000000001
+    Processor: KSTREAM-FLATMAP-0000000001 (stores: [])
+      --> KSTREAM-SINK-0000000002
+      <-- KSTREAM-SOURCE-0000000000
+    Sink: KSTREAM-SINK-0000000002 (topic: flatmapped-topic)
+      <-- KSTREAM-FLATMAP-0000000001
+

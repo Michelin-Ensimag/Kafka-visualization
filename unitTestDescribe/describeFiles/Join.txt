@@ -1,0 +1,14 @@
+Topologies:
+   Sub-topology: 0
+    Source: KSTREAM-SOURCE-0000000000 (topics: [orders])
+      --> KSTREAM-JOIN-0000000004
+    Processor: KSTREAM-JOIN-0000000004 (stores: [customers-STATE-STORE-0000000001])
+      --> KSTREAM-SINK-0000000005
+      <-- KSTREAM-SOURCE-0000000000
+    Source: KSTREAM-SOURCE-0000000002 (topics: [customers])
+      --> KTABLE-SOURCE-0000000003
+    Sink: KSTREAM-SINK-0000000005 (topic: enriched-orders)
+      <-- KSTREAM-JOIN-0000000004
+    Processor: KTABLE-SOURCE-0000000003 (stores: [customers-STATE-STORE-0000000001])
+      --> none
+      <-- KSTREAM-SOURCE-0000000002

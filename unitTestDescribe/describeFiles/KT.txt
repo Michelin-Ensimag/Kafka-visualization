@@ -1,0 +1,12 @@
+Topologies:
+   Sub-topology: 0
+    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])
+      --> KSTREAM-TOTABLE-0000000001
+    Processor: KSTREAM-TOTABLE-0000000001 (stores: [])
+      --> KTABLE-TOSTREAM-0000000003
+      <-- KSTREAM-SOURCE-0000000000
+    Processor: KTABLE-TOSTREAM-0000000003 (stores: [])
+      --> KSTREAM-SINK-0000000004
+      <-- KSTREAM-TOTABLE-0000000001
+    Sink: KSTREAM-SINK-0000000004 (topic: table-topic)
+      <-- KTABLE-TOSTREAM-0000000003
