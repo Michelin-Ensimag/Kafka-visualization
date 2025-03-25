@@ -14,6 +14,7 @@ import {Process} from "../Node/ParentNode/Process.js";
 import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
 import {StateStore} from "../Node/ParentNode/StateStore.js";
 import {FlatMap} from "../Node/ParentNode/FlatMap.js";
+import {KTable} from "../Node/ParentNode/KTable.js";
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -68,6 +69,9 @@ function getOrCreateNode(name, type) {
             case 'kstream-processor':
                 node = new Process(processedName);
                 break;
+            /*case 'kstream-totable':
+                node = new KTable(processedName);
+                break;*/
             case 'store':
                 node = new StateStore(processedName);
                 break;
