@@ -9,6 +9,8 @@ import {GroupBy} from "../Node/ParentNode/GroupBy.js";
 import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
 import {Count} from "../Node/ParentNode/Count.js";
 import {Peek} from "../Node/ParentNode/Peek.js";
+import {SubTopology} from "../Node/ParentNode/SubTopology.js";
+import {Topology} from "../Node/ParentNode/Topology.js";
 import {ForEach} from "../Node/ParentNode/ForEach.js";
 import {Process} from "../Node/ParentNode/Process.js";
 import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
@@ -32,11 +34,17 @@ function getOrCreateNode(name, type) {
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
+            case 'topology':
+                node = new Topology(processedName);
+                console.log("Creation d'un noeud Topology")
             case 'kstream-sink':
                 node = new TopicAdvanced(processedName);
                 break;
             case 'topic':
                 node = new TopicAdvanced(processedName);
+                break;
+            case 'sub-topology':
+                node = new SubTopology(processedName);
                 break;
             case 'kstream-filter':
                 node = new Filter(processedName);
@@ -121,7 +129,7 @@ export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n');
     let currentNode = null;
     nodeMap.clear();
-
+    let nbSubTopology=0;
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
@@ -184,8 +192,18 @@ export function convertTopoToGraph(topologyText) {
                 }
             }
         }
-         else {
-            //console.log('Unknown line:', line);
+         else if (line.startsWith("Sub-topology")){
+            getOrCreateNode(`${nbSubTopology}`,'Sub-topology');
+            console.log("Creation d'un noeud sub-topology")
+            nbSubTopology+=1;
+         }
+         else if (line.startsWith("Topology")){
+            getOrCreateNode(`Start`,'Topology');
+         }
+            
+            
+        else{
+            console.log('Unknown line:', line);
         }
     }
 
@@ -262,8 +280,10 @@ export function convertTopoToGraph(topologyText) {
                 const sourceNode = getOrCreateNode(sourceName, 'default');
                 sourceNode.addNeighbor(currentNode);
             }
-        } else {
-            //console.log('Unknown line:', line);
+        } else if(line.startsWith("Sub-topology")){}
+        else if (line.startsWith("Topology")){}
+            else {
+            console.log('Unknown line:', line);
         }
     }
     //console.log("MAP", [...nodeMap.values()]);
