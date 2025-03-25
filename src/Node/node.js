@@ -131,14 +131,14 @@ export class Node {
           "updated": 1742906993920,
           "link": null,
           "locked": false,
-          "text": "Default",
+          "text": "Default ",
           "fontSize": 20,
           "fontFamily": 1,
           "textAlign": "left",
           "verticalAlign": "top",
           "baseline": 18,
           "containerId": null,
-          "originalText": "Default",
+          "originalText": "Default ",
           "lineHeight": 1.25
         }]
         // console.log('generateJson not implemented for this Node', dictionary);
