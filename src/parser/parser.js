@@ -22,7 +22,7 @@ export function processName(n) {
 
 function getOrCreateNode(name, type) {
     const processedName = processName(name);
-    console.log("type", type);
+    //console.log("type", type);
     if (!nodeMap.has(processedName)) {
         let node;
         switch (type.toLowerCase()) {
@@ -73,7 +73,7 @@ function getOrCreateNode(name, type) {
                 break;
             default:
                 node = new Node(processedName);
-                console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
+                //console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
     }
@@ -116,12 +116,13 @@ function extractTopics(line) {
 export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n');
     let currentNode = null;
+    nodeMap.clear();
 
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
 
-        // console.log('convertTopoToGraphLine', line);
+        //console.log('convertTopoToGraphLine', line);
 
         if (line.startsWith('Source:')) {
             const parts = line.match(/Source: (\S+)/);
@@ -180,7 +181,7 @@ export function convertTopoToGraph(topologyText) {
             }
         }
          else {
-            console.log('Unknown line:', line);
+            //console.log('Unknown line:', line);
         }
     }
 
@@ -188,7 +189,7 @@ export function convertTopoToGraph(topologyText) {
         line = line.trim();
         if (!line) continue;
 
-        console.log('convertTopoToGraphLine', line);
+        //console.log('convertTopoToGraphLine', line);
 
         if (line.startsWith('Source:')) {
             const parts = line.match(/Source: (\S+)/);
@@ -258,21 +259,21 @@ export function convertTopoToGraph(topologyText) {
                 sourceNode.addNeighbor(currentNode);
             }
         } else {
-            console.log('Unknown line:', line);
+            //console.log('Unknown line:', line);
         }
     }
-    console.log("MAP", [...nodeMap.values()]);
+    //console.log("MAP", [...nodeMap.values()]);
     return Array.from(nodeMap.values());
 }
 
 export function printGraph(nodes) {
-    console.log('Graph contents:');
+    //console.log('Graph contents:');
     nodes.forEach(node => {
-        console.log(`${node.label} -> ${node.getNeighbors().map(n => n.label).join(', ')}`);
+        //console.log(`${node.label} -> ${node.getNeighbors().map(n => n.label).join(', ')}`);
     });
 }
 
 export function getTextAreaValue() {
-    console.log('getTextAreaValue', document.getElementById('topo').value);
+    //console.log('getTextAreaValue', document.getElementById('topo').value);
     return document.getElementById('topo').value;
 }

@@ -28,7 +28,7 @@ const App = () => {
     console.log('onSubmit', text);
     let topos = convertTopoToGraph(text);
     console.log("convert topo", topos);
-    let elements = createExcalidrawJSON(topos )
+    let elements = createExcalidrawJSON(topos)
     console.log("json", elements);
     let sceneData = {
       elements,
@@ -37,6 +37,7 @@ const App = () => {
       },
       libraryItems: excalidrawLibrary
     };
+    excalidrawAPI.resetScene();
     excalidrawAPI.updateScene(sceneData);
   };
 
@@ -59,6 +60,7 @@ const App = () => {
         </textarea>
         <button className="border dark:text-white hover:dark:bg-gray-800 p-1 rounded-md cursor-pointer hover:bg-gray-100" onClick={onSubmit}>
           Update Scene
+
         </button>
         <div>
 
