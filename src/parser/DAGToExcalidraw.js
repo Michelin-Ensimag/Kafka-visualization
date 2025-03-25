@@ -76,12 +76,16 @@ export function createExcalidrawJSON(graph) {
 }
 
 export function addBoundedElement(nodeElement, arrowElement) {
-    if (!nodeElement.boundElements) {
-        nodeElement.boundElements = [];
+    if (nodeElement) {
+        if (!nodeElement.boundElements) {
+            nodeElement.boundElements = [];
+        }
+        nodeElement.boundElements.push({
+            id: arrowElement.id,
+            type: 'arrow',
+        });
+    } else {
+        console.error("nodeElement is null or undefined. Cannot set boundElements.");
     }
-    nodeElement.boundElements.push({
-        id: arrowElement.id,
-        type: 'arrow'
-    });
 }
 
