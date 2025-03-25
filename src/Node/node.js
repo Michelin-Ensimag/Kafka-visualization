@@ -13,7 +13,7 @@ export class Node {
     }
 
     getName(){
-        return "mapValues";
+        return "Default";
     }
 
     addNeighbor(node) {
@@ -34,6 +34,113 @@ export class Node {
         kstdlibJSON["libraryItems"].forEach(item => {
             dictionary[item["name"]] = item["elements"];
         });
+        dictionary["Default"] = [{
+          "type": "ellipse",
+          "version": 3742,
+          "versionNonce": 1784336503,
+          "isDeleted": false,
+          "id": "sGH3CUZ3-g2AApfZCECcc",
+          "fillStyle": "solid",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "x": 399.6456402227618,
+          "y": 355.64564022276187,
+          "strokeColor": "#1e1e1e",
+          "backgroundColor": "#ffffff",
+          "width": 60.70871955447628,
+          "height": 60.70871955447628,
+          "seed": 1963978199,
+          "groupIds": [
+            "EYiaaF4ELMNOYkgcaEjz5"
+          ],
+          "frameId": null,
+          "roundness": {
+            "type": 2
+          },
+          "boundElements": [],
+          "updated": 1742906993920,
+          "link": null,
+          "locked": false
+        },
+        {
+          "type": "text",
+          "version": 2870,
+          "versionNonce": 433182329,
+          "isDeleted": false,
+          "id": "r03udux5ypjjwUfcRrqdg",
+          "fillStyle": "solid",
+          "strokeWidth": 1,
+          "strokeStyle": "dotted",
+          "roughness": 1,
+          "opacity": 100,
+          "angle": 0,
+          "x": 415.96395204110604,
+          "y": 374.4369831458885,
+          "strokeColor": "#1e1e1e",
+          "backgroundColor": "transparent",
+          "width": 27.950000762939453,
+          "height": 25,
+          "seed": 715266807,
+          "groupIds": [
+            "EYiaaF4ELMNOYkgcaEjz5"
+          ],
+          "frameId": null,
+          "roundness": null,
+          "boundElements": [],
+          "updated": 1742906993920,
+          "link": null,
+          "locked": false,
+          "fontSize": 20,
+          "fontFamily": 1,
+          "text": "???",
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "containerId": null,
+          "originalText": "???",
+          "lineHeight": 1.25,
+          "baseline": 18
+        },
+        {
+          "id": "mxR1pOHSOhqILYk4-_Xv6",
+          "type": "text",
+          "x": 392,
+          "y": 423,
+          "width": 77.51667022705078,
+          "height": 25,
+          "angle": 0,
+          "strokeColor": "#1e1e1e",
+          "backgroundColor": "transparent",
+          "fillStyle": "solid",
+          "strokeWidth": 2,
+          "strokeStyle": "solid",
+          "roughness": 1,
+          "opacity": 100,
+          "groupIds": [
+            "EYiaaF4ELMNOYkgcaEjz5"
+          ],
+          "frameId": null,
+          "roundness": null,
+          "seed": 239501497,
+          "version": 106,
+          "versionNonce": 95922583,
+          "isDeleted": false,
+          "boundElements": null,
+          "updated": 1742906993920,
+          "link": null,
+          "locked": false,
+          "text": "Default",
+          "fontSize": 20,
+          "fontFamily": 1,
+          "textAlign": "left",
+          "verticalAlign": "top",
+          "baseline": 18,
+          "containerId": null,
+          "originalText": "Default",
+          "lineHeight": 1.25
+        }]
         // console.log('generateJson not implemented for this Node', dictionary);
         for (let cle in dictionary) {
             for (let key in dictionary[cle]) {
