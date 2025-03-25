@@ -6,6 +6,18 @@ import ExcalidrawLogo from "./assets/ks-logo.jsx";
 import kstdlibJSON from "./assets/kafka-streams-topology-design.json"
 import { convertTopoToGraph } from "./parser/parser.js";
 import { createExcalidrawJSON } from "./parser/DAGToExcalidraw.js";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {Button} from "@/components/ui/button"
 
 const App = () => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
@@ -65,6 +77,22 @@ const App = () => {
           <button className="border p-1 dark:text-white hover:dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-100" onClick={toggleTheme} >
             {localStorage.theme === "light" ? <Sun width="18" height="18" /> : <Moon width="18" height="18 " />}
           </button>
+          <AlertDialog>
+            <AlertDialogTrigger><Button>Open</Button> </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your account
+                  and remove your data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
