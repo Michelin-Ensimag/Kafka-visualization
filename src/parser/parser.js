@@ -13,6 +13,8 @@ import {ForEach} from "../Node/ParentNode/ForEach.js";
 import {Process} from "../Node/ParentNode/Process.js";
 import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
 import {StateStore} from "../Node/ParentNode/StateStore.js";
+import {FlatMap} from "../Node/ParentNode/FlatMap.js";
+import {KTable} from "../Node/ParentNode/KTable.js";
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -21,7 +23,7 @@ export function processName(n) {
 
 function getOrCreateNode(name, type) {
     const processedName = processName(name);
-    console.log("type", type);
+    //console.log("type", type);
     if (!nodeMap.has(processedName)) {
         let node;
         switch (type.toLowerCase()) {
@@ -30,7 +32,6 @@ function getOrCreateNode(name, type) {
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
-
             case 'kstream-sink':
                 node = new TopicAdvanced(processedName);
                 break;
@@ -45,6 +46,9 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-key-select':
                 node = new SelectKey(processedName);
+                break;
+            case 'kstream-flatmap':
+                node = new FlatMap(processedName);
                 break;
             case 'kstream-groupby':
                 node = new GroupBy(processedName);
@@ -65,12 +69,15 @@ function getOrCreateNode(name, type) {
             case 'kstream-processor':
                 node = new Process(processedName);
                 break;
+            /*case 'kstream-totable':
+                node = new KTable(processedName);
+                break;*/
             case 'store':
                 node = new StateStore(processedName);
                 break;
             default:
                 node = new Node(processedName);
-                console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
+                //console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
     }
@@ -113,12 +120,13 @@ function extractTopics(line) {
 export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n');
     let currentNode = null;
+    nodeMap.clear();
 
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
 
-        console.log('convertTopoToGraphLine', line);
+        //console.log('convertTopoToGraphLine', line);
 
         if (line.startsWith('Source:')) {
             const parts = line.match(/Source: (\S+)/);
@@ -144,6 +152,7 @@ export function convertTopoToGraph(topologyText) {
                         .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
                         .join('-')     // Join them back with a dash
                         .toLowerCase(); // Convert to lowercase
+                    processorType = "kstream-"+processorType;
                 } else {
                     // Fallback for cases like "INNER_JOIN"
                     processorType = nodeName.toLowerCase();
@@ -176,7 +185,7 @@ export function convertTopoToGraph(topologyText) {
             }
         }
          else {
-            console.log('Unknown line:', line);
+            //console.log('Unknown line:', line);
         }
     }
 
@@ -184,7 +193,7 @@ export function convertTopoToGraph(topologyText) {
         line = line.trim();
         if (!line) continue;
 
-        console.log('convertTopoToGraphLine', line);
+        //console.log('convertTopoToGraphLine', line);
 
         if (line.startsWith('Source:')) {
             const parts = line.match(/Source: (\S+)/);
@@ -254,21 +263,21 @@ export function convertTopoToGraph(topologyText) {
                 sourceNode.addNeighbor(currentNode);
             }
         } else {
-            console.log('Unknown line:', line);
+            //console.log('Unknown line:', line);
         }
     }
-    console.log("MAP", [...nodeMap.values()]);
+    //console.log("MAP", [...nodeMap.values()]);
     return Array.from(nodeMap.values());
 }
 
 export function printGraph(nodes) {
-    console.log('Graph contents:');
+    //console.log('Graph contents:');
     nodes.forEach(node => {
-        console.log(`${node.label} -> ${node.getNeighbors().map(n => n.label).join(', ')}`);
+        //console.log(`${node.label} -> ${node.getNeighbors().map(n => n.label).join(', ')}`);
     });
 }
 
 export function getTextAreaValue() {
-    console.log('getTextAreaValue', document.getElementById('topo').value);
+    //console.log('getTextAreaValue', document.getElementById('topo').value);
     return document.getElementById('topo').value;
 }
