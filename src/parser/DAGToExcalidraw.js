@@ -23,8 +23,12 @@ export function createExcalidrawJSON(graph) {
     let baseY = 50;
     let horizontalSpacing = 80;
     let verticalSpacing = 100;
-
+    let xtop=-Infinity;
+    let ytop=-Infinity;
+    let xbottom=Infinity;
+    let ybottom=Infinity; 
     let currentX = baseX;
+    let currentSub=null;
     // Placer les noeuds
     for (let distance of sortedDistances) {
         let nodesAtDistance = nodesByDistance.get(distance);
@@ -37,15 +41,39 @@ export function createExcalidrawJSON(graph) {
 
         for (let i = 0; i < nodesAtDistance.length; i++) {
             let current = nodesAtDistance[i];
+            if(current.getName()=='Sub-topology'){
+                if(currentSub==null){
+                    currentSub=current;
+                }
+                else{
+                    //currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+                    // currentSub.generateJson(xtop,ytop,xtop+150,ytop+50);
+                    // elements.push(...currentSub.getJson());
+                    xtop=-Infinity;
+                    ytop=-Infinity;
+                    xbottom=Infinity;
+                    ybottom=Infinity;
+                }
+            }
+            else{            
+                let x = currentX;
+                let y = startY + i * verticalSpacing;
+                //Maj des boundaries de la sub-topology
+                if(current!=null){
+                    xtop=(xtop=-Infinity ?  x: Math.min(x,xtop));
+                    ytop=(ytop=-Infinity ?  y: Math.min(y,ytop));
+                    xbottom=(xtop=Infinity ?  x: Math.max(x,xbottom));
+                    ybottom=(ytop=Infinity ?  y: Math.max(y,ybottom));
+                }
+                current.generateJson(x, y);
+                console.log("Dessin ",x,y);
+                maxWidth = Math.max(maxWidth, current.getElementsWidth());}
 
-            let x = currentX;
-            let y = startY + i * verticalSpacing;
-
-            current.generateJson(x, y);
-            maxWidth = Math.max(maxWidth, current.getElementsWidth());
         }
         currentX += maxWidth + horizontalSpacing;
     }
+    // currentSub.generateJson(xtop,ytop,xtop+300,ytop+150);
+    // elements.push(...currentSub.getJson());
 
     // Créer les flèches
     for (let node of result.sortedNodes) {
@@ -67,7 +95,10 @@ export function createExcalidrawJSON(graph) {
     }
 
     for (let node of result.sortedNodes) {
-        elements.push(...node.getJson());
+        if(node.getName()!=("Sub-topology")){
+            elements.push(...node.getJson());
+        }
+        
     }
     return elements;
 }
