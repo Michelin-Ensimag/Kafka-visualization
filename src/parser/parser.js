@@ -13,6 +13,7 @@ import {ForEach} from "../Node/ParentNode/ForEach.js";
 import {Process} from "../Node/ParentNode/Process.js";
 import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
 import {StateStore} from "../Node/ParentNode/StateStore.js";
+import {FlatMap} from "../Node/ParentNode/FlatMap.js";
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -30,7 +31,6 @@ function getOrCreateNode(name, type) {
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
-
             case 'kstream-sink':
                 node = new TopicAdvanced(processedName);
                 break;
@@ -45,6 +45,9 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-key-select':
                 node = new SelectKey(processedName);
+                break;
+            case 'kstream-flatmap':
+                node = new FlatMap(processedName);
                 break;
             case 'kstream-groupby':
                 node = new GroupBy(processedName);
@@ -118,7 +121,7 @@ export function convertTopoToGraph(topologyText) {
         line = line.trim();
         if (!line) continue;
 
-        console.log('convertTopoToGraphLine', line);
+        // console.log('convertTopoToGraphLine', line);
 
         if (line.startsWith('Source:')) {
             const parts = line.match(/Source: (\S+)/);
@@ -144,6 +147,7 @@ export function convertTopoToGraph(topologyText) {
                         .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
                         .join('-')     // Join them back with a dash
                         .toLowerCase(); // Convert to lowercase
+                    processorType = "kstream-"+processorType;
                 } else {
                     // Fallback for cases like "INNER_JOIN"
                     processorType = nodeName.toLowerCase();
