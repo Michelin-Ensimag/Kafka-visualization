@@ -56,9 +56,9 @@ export function createExcalidrawJSON(graph) {
             let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
             let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
             
-            console.log("test id")
-            console.log(node.getNodeIdForArrow())
-            console.log(neighbor.getNodeIdForArrow())
+            //console.log("test id")
+            //console.log(node.getNodeIdForArrow())
+            //console.log(neighbor.getNodeIdForArrow())
             let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForArrow(), neighbor.getNodeIdForArrow());
 
             // Ajouter la flèche aux boundElements des noeuds
