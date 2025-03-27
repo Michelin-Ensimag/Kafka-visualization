@@ -9,7 +9,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.apache.log4j.BasicConfigurator;
 import java.util.Properties;
 
-public class Map {
+public class MapNode {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "keytable-example-app");

@@ -2,7 +2,6 @@ import { KStreamSourceNode,Node } from '../Node/node.js';
 import { SelectKey } from '../Node/ParentNode/SelectKey.js';
 import { TopicSimple } from '../Node/ParentNode/TopicSimple.js';
 import { TopicAdvanced } from '../Node/ParentNode/TopicAdvanced.js';
-import  {Map as MapNode} from "../Node/ParentNode/Map.js"
 import {Filter} from "../Node/ParentNode/Filter.js";
 import {MapValues} from "../Node/ParentNode/MapValues.js";
 import {GroupBy} from "../Node/ParentNode/GroupBy.js";
@@ -15,6 +14,13 @@ import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
 import {StateStore} from "../Node/ParentNode/StateStore.js";
 import {FlatMap} from "../Node/ParentNode/FlatMap.js";
 import {KTable} from "../Node/ParentNode/KTable.js";
+import {GlobalKTable} from "../Node/ParentNode/GlobalKTable.js";
+import {Split} from "../Node/ParentNode/Split.js";
+import {Merge} from "../Node/ParentNode/Merge.js";
+import {None} from "../Node/ParentNode/None.js";
+import {Map as MapNode} from "../Node/ParentNode/Map.js";
+import {Join} from "../Node/ParentNode/Join.js";
+import {FlatMapValues} from '../Node/ParentNode/FlatMapValues.js';
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -69,12 +75,33 @@ function getOrCreateNode(name, type) {
             case 'kstream-processor':
                 node = new Process(processedName);
                 break;
-            /*case 'kstream-totable':
+            case 'kstream-totable':
                 node = new KTable(processedName);
-                break;*/
+                break;
+            case 'kstream-branch':
+                node = new Split(processName);
+                break;
             case 'store':
                 node = new StateStore(processedName);
                 break;
+            case 'kstream-merge':
+                node = new Merge(processedName);
+                break;
+            case 'kstream-map':
+                node = new MapNode(processedName);
+                break;
+            case 'kstream-join':
+                node = new Join(processedName);
+                break;
+            case 'kstream-flatmap':
+                node = new FlatMap(processedName);
+                break;
+            case 'kstream-flatmapvalues':
+                node = new FlatMapValues(processedName);
+                break;
+            /*case 'none':
+                node = new None(processedName);
+                break;*/
             default:
                 node = new Node(processedName);
                 //console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
