@@ -46,13 +46,13 @@ export function createExcalidrawJSON(graph) {
                     currentSub=current;
                 }
                 else{
-                    //currentSub.generateJson(xtop,ytop,xbottom,ybottom);
-                    // currentSub.generateJson(xtop,ytop,xtop+150,ytop+50);
-                    // elements.push(...currentSub.getJson());
+                    currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+                    elements.push(...currentSub.getJson());
                     xtop=-Infinity;
                     ytop=-Infinity;
                     xbottom=Infinity;
                     ybottom=Infinity;
+                    currentSub=current;
                 }
             }
             else{            
@@ -72,28 +72,29 @@ export function createExcalidrawJSON(graph) {
         }
         currentX += maxWidth + horizontalSpacing;
     }
-    // currentSub.generateJson(xtop,ytop,xtop+300,ytop+150);
-    // elements.push(...currentSub.getJson());
+    currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+    elements.push(...currentSub.getJson());
 
     // Créer les flèches
     for (let node of result.sortedNodes) {
         for (let neighbor of node.getNeighbors()) {
-            // Créer une flèche entre les noeuds
-            let arrowsPointsStart = node.getBoundaryPoints();
-            let arrowsPointsStop = neighbor.getBoundaryPoints();
-            let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
-            let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
-            
-            //console.log("test id")
-            //console.log(node.getNodeIdForArrow())
-            //console.log(neighbor.getNodeIdForArrow())
-            let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForArrow(), neighbor.getNodeIdForArrow());
-
-            // Ajouter la flèche aux boundElements des noeuds
-            addBoundedElement(node.getContainerElement(), arrowElement);
-            addBoundedElement(neighbor.getContainerElement(), arrowElement);
-            // Ajouter la flèche aux éléments
-            elements.push(arrowElement);
+            if(neighbor.getName!="Sub-topology"){ // Créer une flèche entre les noeuds
+                let arrowsPointsStart = node.getBoundaryPoints();
+                let arrowsPointsStop = neighbor.getBoundaryPoints();
+                let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
+                let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
+                
+                //console.log("test id")
+                //console.log(node.getNodeIdForArrow())
+                //console.log(neighbor.getNodeIdForArrow())
+                let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForArrow(), neighbor.getNodeIdForArrow());
+    
+                // Ajouter la flèche aux boundElements des noeuds
+                addBoundedElement(node.getContainerElement(), arrowElement);
+                addBoundedElement(neighbor.getContainerElement(), arrowElement);
+                // Ajouter la flèche aux éléments
+                elements.push(arrowElement);}
+           
         }
     }
 

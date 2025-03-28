@@ -128,6 +128,7 @@ function extractTopics(line) {
 export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n');
     let currentNode = null;
+    let newNode=null;
     nodeMap.clear();
     let nbSubTopology=0;
     for (let line of lines) {
@@ -193,12 +194,14 @@ export function convertTopoToGraph(topologyText) {
             }
         }
          else if (line.startsWith("Sub-topology")){
-            getOrCreateNode(`${nbSubTopology}`,'Sub-topology');
+            let newNode= getOrCreateNode(`${nbSubTopology}`,'Sub-topology');
+            currentNode.addNeighbor(newNode);
+            currentNode=newNode;
             console.log("Creation d'un noeud sub-topology")
             nbSubTopology+=1;
-         }
-         else if (line.startsWith("Topology")){
-            getOrCreateNode(`Start`,'Topology');
+        //  }
+         else if (line.startsWith("Topologies")){
+            currentNode = getOrCreateNode(`Start`,'Topology');
          }
             
             
@@ -217,6 +220,7 @@ export function convertTopoToGraph(topologyText) {
             const parts = line.match(/Source: (\S+)/);
             if (parts) {
                 const nodeName = parts[1];
+                
                 currentNode = getOrCreateNode(nodeName, 'source');
                 const topics = extractTopics(line);
                 for (let topic of topics) {
@@ -281,7 +285,7 @@ export function convertTopoToGraph(topologyText) {
                 sourceNode.addNeighbor(currentNode);
             }
         } else if(line.startsWith("Sub-topology")){}
-        else if (line.startsWith("Topology")){}
+        else if (line.startsWith("Topologies")){}
             else {
             console.log('Unknown line:', line);
         }
