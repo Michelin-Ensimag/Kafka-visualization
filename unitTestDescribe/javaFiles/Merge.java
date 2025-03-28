@@ -30,9 +30,9 @@ public class Merge {
             (key, value) -> value.contains("warning"),
             (key, value) -> true
         );
-        branches[0].to("error-topic", Produced.with(Serdes.String(), Serdes.String()));
-        branches[1].to("warning-topic", Produced.with(Serdes.String(), Serdes.String()));
-        branches[2].to("info-topic", Produced.with(Serdes.String(), Serdes.String()));
+        //branches[0].to("error-topic", Produced.with(Serdes.String(), Serdes.String()));
+        //branches[1].to("warning-topic", Produced.with(Serdes.String(), Serdes.String()));
+        //branches[2].to("info-topic", Produced.with(Serdes.String(), Serdes.String()));
 
         // merge
         KStream<String, String> mergedStream = branches[0].merge(branches[1]).merge(branches[2]);

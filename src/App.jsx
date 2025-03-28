@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Excalidraw, WelcomeScreen } from "@excalidraw/excalidraw";
 import { Moon } from "./assets/moon";
 import { Sun } from "./assets/sun";
-import ExcalidrawLogo from "./assets/ks-logo.jsx";
+import logo from "./assets/ks-logo.js";
 import kstdlibJSON from "./assets/kafka-streams-topology-design.json"
 import { convertTopoToGraph } from "./parser/parser.js";
 import { createExcalidrawJSON } from "./parser/DAGToExcalidraw.js";
@@ -58,11 +58,19 @@ const App = () => {
     convertTopoToGraph(text);
   };
 
+  let i=0;
+  const removeLogo = () => {
+    if (i === 0) {
+      excalidrawAPI.updateScene({ elements: [] });
+      i++;
+    }
+}
+
   return (
     <div className="flex flex-col w-full flex-grow h-full bg-white dark:bg-[#161616] md:flex-row" >
       <div className="flex-1 p-8 border-r flex flex-col gap-2 max-h-[40vh] md:max-h-[100vh] h-[40vh] md:h-auto">
         <h1 className="text-xl dark:text-white"> KAFKA VISUALISATION</h1>
-        <p className="mt-4 dark:text-white">Enter kafka topology : </p>
+        <p className="mt-4 dark:text-white">Enter kafka topology .describe() : </p>
         <textarea id="topo"
           className="flex h-[40vh] md:h-auto md:min-h-[20vh] md:max-h-[60vh] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
         dark:text-white resize-none md:resize-y"  placeholder="Paste your kafka topology here"
@@ -74,24 +82,32 @@ const App = () => {
           Update Scene
 
         </button>
-        <div>
+        <div className="flex items-center">
 
-          <button className="border p-1 dark:text-white hover:dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-100" onClick={toggleTheme} >
-            {localStorage.theme === "light" ? <Sun width="18" height="18" /> : <Moon width="18" height="18 " />}
+          <button className="border p-1 mr-2 dark:text-white hover:dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-100" onClick={toggleTheme} >
+            {theme === "light" ? <Sun width="18" height="18" /> : <Moon width="18" height="18 " />}
           </button>
           <AlertDialog>
-            <AlertDialogTrigger><Button>Open</Button> </AlertDialogTrigger>
+            <AlertDialogTrigger className={"cursor-pointer"} variant={theme}><Button className={"border cursor-pointer"} variant={theme} >View More</Button> </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>We are happy to share to you this new tool</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your account
-                  and remove your data from our servers.
+                  The idea of the project was imagined by <a className="underline text-blue-500" href="https://blogit.michelin.io/">Michelin</a> and developped by <a className="underline text-blue-500" href="">Ensimag</a> students.
+                  Indeed before this tool, the kafka topologies were hard to visualize (<a className="underline text-blue-500" href="https://github.com/zz85/kafka-streams-viz/">zz85</a> ;-) )  and we wanted to make it easier for you.
+                </AlertDialogDescription>
+                <AlertDialogTitle>Open Source</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Like the new Michelin Policy we like to work for a better society. This tool is open source and you can find it on <a className="underline text-blue-500" href="">Github</a> under the Apache 2.0 License.
+                </AlertDialogDescription>
+                <AlertDialogTitle>Developpers</AlertDialogTitle>
+                <AlertDialogDescription>
+                <a className="underline text-blue-500" href="https://euzeby.com/">R4ph3uz</a>, <a className="underline text-blue-500" href="https://github.com/Ashilion">Hugo</a>, Raphael, <a className="underline text-blue-500" href="https://github.com/dydyhg">Dylan</a>. 
+                Special Thanks for <span className="font-semibold"> Sebastien Viale</span> from Michelin.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Continue</AlertDialogAction>
+                <AlertDialogCancel>Close</AlertDialogCancel>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -99,16 +115,17 @@ const App = () => {
       </div>
 
 
-      <div className="h-[60vh] w-[100vw] md:h-[100vh] md:w-[80vw]">
+      <div className="h-[60vh] w-[100vw] md:h-[100vh] md:w-[80vw]" onClick={removeLogo}>
 
-        <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)} theme={theme} initialData={{ libraryItems: kstdlibJSON["libraryItems"] }}>
-          <WelcomeScreen >
-            <WelcomeScreen.Center>
-              <WelcomeScreen.Center.Logo>
-                <ExcalidrawLogo size="large" withText={true} />
-              </WelcomeScreen.Center.Logo>
-            </WelcomeScreen.Center>
-          </WelcomeScreen>
+        <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)} theme={theme} initialData={{
+          elements: logo,
+           libraryItems: [{
+            "status": "published",
+            "elements":logo,
+            "id": "lW5TH_vxqSiJaRi-f0u_y",
+            "created": 1743110086,
+            "name": "Ks-Logo"
+          },...kstdlibJSON["libraryItems"]] }}>
         </Excalidraw>
       </div>
     </div>

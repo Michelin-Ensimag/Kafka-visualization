@@ -48,6 +48,10 @@ export function createExcalidrawJSON(graph) {
                 else{
                     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
                     elements.push(...currentSub.getJson());
+
+                    //currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+                    // currentSub.generateJson(xtop,ytop,xtop+150,ytop+50);
+                    // elements.push(...currentSub.getJson());
                     xtop=-Infinity;
                     ytop=-Infinity;
                     xbottom=Infinity;
@@ -72,6 +76,7 @@ export function createExcalidrawJSON(graph) {
         }
         currentX += maxWidth + horizontalSpacing;
     }
+
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
     elements.push(...currentSub.getJson());
 
