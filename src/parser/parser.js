@@ -277,8 +277,9 @@ export function convertTopoToGraph(topologyText) {
             }
         } else if (line.includes('-->')) {
             const parts = line.split('-->');
+            
             const targetName = parts[1].trim().split(/\s+/)[0]; // Get first word after -->
-            if (targetName && currentNode) {
+            if (targetName && currentNode && targetName!="none") {
                 const targetNode = getOrCreateNode(targetName, 'default');
                 currentNode.addNeighbor(targetNode);
             }
