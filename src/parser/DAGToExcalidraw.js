@@ -59,11 +59,11 @@ export function createExcalidrawJSON(graph) {
             //console.log("test id")
             //console.log(node.getNodeIdForArrow())
             //console.log(neighbor.getNodeIdForArrow())
-            let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForArrow(), neighbor.getNodeIdForArrow());
+            let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForRightmost(), neighbor.getNodeIdForLeftmost());
 
             // Ajouter la flèche aux boundElements des noeuds
-            addBoundedElement(node.getContainerElement(), arrowElement);
-            addBoundedElement(neighbor.getContainerElement(), arrowElement);
+            addBoundedElement(node.getLeftContainerElement(), arrowElement);
+            addBoundedElement(neighbor.getRigthContainerElement(), arrowElement);
             // Ajouter la flèche aux éléments
             elements.push(arrowElement);
         }

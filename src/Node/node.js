@@ -9,7 +9,8 @@ export class Node {
         this.label = label;
         this.neighbors = new Set();
         this.json = {};
-        this.containerElement = {}
+        this.leftContainerElement = {}
+        this.rightContainerElement = {}
     }
 
     getName(){
@@ -320,37 +321,66 @@ export class Node {
         return maxX - minX;
     }
 
-    getNodeIdForArrow() {
-        // Assuming `this.json` contains the array of elements (like in the structure you shared)
+    getNodeIdForLeftmost() {
+        // Assuming `this.json` contains the array of elements
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
-        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rect'); // Adjust 'rect' if needed
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
     
         if (shapes.length === 0) {
-            this.containerElement = null; // If no ellipses or rectangles are found, set containerElement to null
+            this.rightContainerElement = null; // If no shapes are found, set containerElement to null
             return null;
         }
     
-        // Find the shape with the largest area (width * height)
-        let largestShape = shapes.reduce((maxShape, currentShape) => {
-            let maxArea = maxShape.width * maxShape.height;
-            let currentArea = currentShape.width * currentShape.height;
-    
-            // Compare areas and return the one with the larger area
-            return currentArea > maxArea ? currentShape : maxShape;
+        // Find the shape with the leftmost point (smallest x coordinate)
+        let leftmostShape = shapes.reduce((leftShape, currentShape) => {
+            // Compare the leftmost point of each shape (x position)
+            return currentShape.x < leftShape.x ? currentShape : leftShape;
         });
     
-        // Set this.containerElement to the largest shape element
-        this.containerElement = largestShape;
+        // Set this.containerElement to the leftmost shape element
+        this.rightContainerElement = leftmostShape;
     
-        // Return the ID of the largest shape
-        return largestShape.id;
+        // Return the ID of the leftmost shape
+        return leftmostShape.id;
     }
+
+    getNodeIdForRightmost() {
+        // Assuming `this.json` contains the array of elements
+        let elem = this.json;
     
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.leftContainerElement = null; // If no shapes are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the rightmost point (largest x + width)
+        let rightmostShape = shapes.reduce((rightShape, currentShape) => {
+            // Compare the rightmost point of each shape (x + width)
+            return (currentShape.x + currentShape.width) > (rightShape.x + rightShape.width) ? currentShape : rightShape;
+        });
+    
+        // Set this.containerElement to the rightmost shape element
+        this.leftContainerElement = rightmostShape;
+    
+        // Return the ID of the rightmost shape
+        return rightmostShape.id;
+    }
 
     getContainerElement(){
         return this.containerElement
+    }
+
+    getRigthContainerElement(){
+        return this.rightContainerElement
+    }
+
+    getLeftContainerElement(){
+        return this.leftContainerElement
     }
 }
 
