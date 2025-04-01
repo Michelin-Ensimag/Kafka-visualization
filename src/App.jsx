@@ -8,7 +8,6 @@ import { convertTopoToGraph } from "./parser/parser.js";
 import { createExcalidrawJSON } from "./parser/DAGToExcalidraw.js";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -17,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import {Button} from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 
 const App = () => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
@@ -58,18 +57,20 @@ const App = () => {
     convertTopoToGraph(text);
   };
 
-  let i=0;
+  let firstClick = true;
   const removeLogo = () => {
-    if (i === 0) {
-      excalidrawAPI.updateScene({ elements: [] });
-      i++;
+    let newElements = excalidrawAPI.getSceneElements()
+    console.log(newElements, newElements[14], newElements[14].type, newElements[14].text)
+    if (firstClick && newElements[14].type == "text" && newElements[14].text == "STD-VISUALIZATION") {
+      excalidrawAPI.resetScene();
+      firstClick = false;
     }
-}
-
+  }
+  
   return (
     <div className="flex flex-col w-full flex-grow h-full bg-white dark:bg-[#161616] md:flex-row" >
       <div className="flex-1 p-8 border-r flex flex-col gap-2 max-h-[40vh] md:max-h-[100vh] h-[40vh] md:h-auto">
-        <h1 className="text-xl dark:text-white"> KAFKA VISUALISATION</h1>
+        <h1 className="text-xl dark:text-white"> KAFKA STREAM VISUALISATION</h1>
         <p className="mt-4 dark:text-white">Enter kafka topology .describe() : </p>
         <textarea id="topo"
           className="flex h-[40vh] md:h-auto md:min-h-[20vh] md:max-h-[60vh] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
@@ -88,7 +89,9 @@ const App = () => {
             {theme === "light" ? <Sun width="18" height="18" /> : <Moon width="18" height="18 " />}
           </button>
           <AlertDialog>
-            <AlertDialogTrigger className={"cursor-pointer"} variant={theme}><Button className={"border cursor-pointer"} variant={theme} >View More</Button> </AlertDialogTrigger>
+            <AlertDialogTrigger className={"cursor-pointer"} variant={theme} asChild>
+              <Button className={"border cursor-pointer"} variant={theme}>View More</Button>
+            </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>We are happy to share to you this new tool</AlertDialogTitle>
@@ -102,8 +105,8 @@ const App = () => {
                 </AlertDialogDescription>
                 <AlertDialogTitle>Developpers</AlertDialogTitle>
                 <AlertDialogDescription>
-                <a className="underline text-blue-500" href="https://euzeby.com/">R4ph3uz</a>, <a className="underline text-blue-500" href="https://github.com/Ashilion">Hugo</a>, Raphael, <a className="underline text-blue-500" href="https://github.com/dydyhg">Dylan</a>. 
-                Special Thanks for <span className="font-semibold"> Sebastien Viale</span> from Michelin.
+                  <a className="underline text-blue-500" href="https://euzeby.com/">R4ph3uz</a>, <a className="underline text-blue-500" href="https://github.com/Ashilion">Hugo</a>, Raphael, <a className="underline text-blue-500" href="https://github.com/dydyhg">Dylan</a>.
+                  Special Thanks for <span className="font-semibold"> Sebastien Viale</span> from Michelin.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -119,13 +122,14 @@ const App = () => {
 
         <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)} theme={theme} initialData={{
           elements: logo,
-           libraryItems: [{
+          libraryItems: [{
             "status": "published",
-            "elements":logo,
+            "elements": logo,
             "id": "lW5TH_vxqSiJaRi-f0u_y",
             "created": 1743110086,
             "name": "Ks-Logo"
-          },...kstdlibJSON["libraryItems"]] }}>
+          }, ...kstdlibJSON["libraryItems"]]
+        }}>
         </Excalidraw>
       </div>
     </div>
