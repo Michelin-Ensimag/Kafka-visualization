@@ -36,11 +36,8 @@ const App = () => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    console.log('onSubmit', text);
     let topos = convertTopoToGraph(text);
-    console.log("convert topo", topos);
     let elements = createExcalidrawJSON(topos)
-    console.log("json", elements);
     let sceneData = {
       elements,
       appState: {
@@ -52,15 +49,9 @@ const App = () => {
     excalidrawAPI.updateScene(sceneData);
   };
 
-  const handlePaste = (event) => {
-    console.log('onPaste', text);
-    convertTopoToGraph(text);
-  };
-
   let firstClick = true;
   const removeLogo = () => {
     let newElements = excalidrawAPI.getSceneElements()
-    console.log(newElements, newElements[14], newElements[14].type, newElements[14].text)
     if (firstClick && newElements[14].type == "text" && newElements[14].text == "STD-VISUALIZATION") {
       excalidrawAPI.resetScene();
       firstClick = false;
