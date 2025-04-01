@@ -31,7 +31,6 @@ export class Node {
 
     generateJson(x, y) {
         let dictionary = generateDictionary();
-        console.log('generateDictionary', dictionary);
         for (let cle in dictionary) {
             for (let key in dictionary[cle]) {
                 let elem = dictionary[cle][key]
@@ -284,7 +283,6 @@ export class KStreamSourceNode extends Node {
 
     generateJson(x, y) {
         super.generateJson(x, y);
-        console.log(this.label, this.json)
         return this.json;
     }
 }
