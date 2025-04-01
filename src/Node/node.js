@@ -7,7 +7,7 @@ export class Node {
 
     constructor(label) {
         this.label = label;
-        this.neighbors = new Set();
+        this.neighbors = [];
         this.json = {};
         this.containerElement = {}
     }
@@ -17,7 +17,12 @@ export class Node {
     }
 
     addNeighbor(node) {
-        this.neighbors.add(node);
+        this.neighbors.push(node);
+    }
+
+    addSubTopology(node){
+        //USED ONLY FOR SUB-TOPOLOGIES
+        this.neighbors.unshift(node);
     }
 
     getNeighbors() {

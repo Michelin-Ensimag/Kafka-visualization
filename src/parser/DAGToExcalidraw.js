@@ -41,6 +41,7 @@ export function createExcalidrawJSON(graph) {
 
         for (let i = 0; i < nodesAtDistance.length; i++) {
             let current = nodesAtDistance[i];
+            console.log(current.getName());
             if(current.getName()=='Sub-topology'){
                 if(currentSub==null){
                     currentSub=current;
@@ -48,10 +49,7 @@ export function createExcalidrawJSON(graph) {
                 else{
                     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
                     elements.push(...currentSub.getJson());
-
-                    //currentSub.generateJson(xtop,ytop,xbottom,ybottom);
-                    // currentSub.generateJson(xtop,ytop,xtop+150,ytop+50);
-                    // elements.push(...currentSub.getJson());
+                    console.log("Dessin ST")
                     xtop=-Infinity;
                     ytop=-Infinity;
                     xbottom=Infinity;
@@ -59,18 +57,22 @@ export function createExcalidrawJSON(graph) {
                     currentSub=current;
                 }
             }
-            else{            
+            else if (current.getName()=='Topology'){
+
+            }
+            else{      
                 let x = currentX;
                 let y = startY + i * verticalSpacing;
                 //Maj des boundaries de la sub-topology
-                if(current!=null){
-                    xtop=(xtop=-Infinity ?  x: Math.min(x,xtop));
-                    ytop=(ytop=-Infinity ?  y: Math.min(y,ytop));
-                    xbottom=(xtop=Infinity ?  x: Math.max(x,xbottom));
-                    ybottom=(ytop=Infinity ?  y: Math.max(y,ybottom));
-                }
                 current.generateJson(x, y);
-                console.log("Dessin ",x,y);
+                if(current!=null&&(current.getName()!='Topic Advanced'&&current.getName()!='State Store')){
+                    xtop=(xtop==-Infinity ?  x: Math.min(x-10,xtop));
+                    ytop=(ytop==-Infinity ?  y: Math.min(y-10,ytop));
+                    xbottom=(xbottom==Infinity ?  x: Math.max(x+current.getJson()[0].width+20,xbottom));
+                    ybottom=(ybottom==Infinity ?  y: Math.max(y+current.getJson()[0].height+20,ybottom));
+                }
+                console.log("Dessin pas une ST",x,y);
+                console.log ("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
                 maxWidth = Math.max(maxWidth, current.getElementsWidth());}
 
         }
@@ -79,11 +81,13 @@ export function createExcalidrawJSON(graph) {
 
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
     elements.push(...currentSub.getJson());
+    console.log("Dessin ST");
 
     // Créer les flèches
     for (let node of result.sortedNodes) {
         for (let neighbor of node.getNeighbors()) {
-            if(neighbor.getName!="Sub-topology"){ // Créer une flèche entre les noeuds
+            if(neighbor.getName()!='Sub-topology'){ 
+                console.log(neighbor.getName());// Créer une flèche entre les noeuds
                 let arrowsPointsStart = node.getBoundaryPoints();
                 let arrowsPointsStop = neighbor.getBoundaryPoints();
                 let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
@@ -104,9 +108,7 @@ export function createExcalidrawJSON(graph) {
     }
 
     for (let node of result.sortedNodes) {
-        if(node.getName()!=("Sub-topology")){
             elements.push(...node.getJson());
-        }
         
     }
     return elements;

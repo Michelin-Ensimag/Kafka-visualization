@@ -221,12 +221,12 @@ export function convertTopoToGraph(topologyText) {
             }
         }
          else if (line.startsWith("Sub-topology")){
-            getOrCreateNode(`${nbSubTopology}`,'Sub-topology');
+            currentNode.addNeighbor(getOrCreateNode(`${nbSubTopology}`,'Sub-topology'));
             console.log("Creation d'un noeud sub-topology")
             nbSubTopology+=1;
          }
-         else if (line.startsWith("Topology")){
-            getOrCreateNode(`Start`,'Topology');
+         else if (line.startsWith("Topologies")){
+            currentNode = getOrCreateNode(`Start`,'Topology');
          }
             
             
@@ -310,7 +310,7 @@ export function convertTopoToGraph(topologyText) {
                 sourceNode.addNeighbor(currentNode);
             }
         } else if(line.startsWith("Sub-topology")){}
-        else if (line.startsWith("Topology")){}
+        else if (line.startsWith("Topologies")){}
             else {
             console.log('Unknown line:', line);
         }
