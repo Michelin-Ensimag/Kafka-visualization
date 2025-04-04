@@ -169,8 +169,6 @@ function processLine(line) {
 
 let match, currentNode;
 function addConnections(line) {
-    console.log("currentNode", currentNode);
-    console.log("addConnections", line);
     if ((match = line.match(/^Source: (\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'source');
     } else if ((match = line.match(/^Processor: (\S+)/))) {
@@ -178,7 +176,6 @@ function addConnections(line) {
     } else if ((match = line.match(/^Sink: (\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'sink');
     }
-    console.log("currentNode", currentNode);
     if (!currentNode) return;
 
     if (line.includes('-->')) {
