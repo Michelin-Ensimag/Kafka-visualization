@@ -211,10 +211,6 @@ function getProcessorType(nodeName) {
     return nodeName.toLowerCase();
 }
 
-function extractTarget(line, delimiter) {
-    return line.split(delimiter)[1]?.trim().split(/\s+/)[0] || null;
-}
-
 
 // export function convertTopoToGraph(topologyText) {
 //     const lines = topologyText.split('\n');
