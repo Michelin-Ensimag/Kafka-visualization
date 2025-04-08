@@ -35,7 +35,8 @@ function getOrCreateNode(name, type) {
         let node;
         switch (type.toLowerCase()) {
             case 'source':
-            case 'sink':
+            case 'sink':           
+            case 'kstream-tostream':
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
