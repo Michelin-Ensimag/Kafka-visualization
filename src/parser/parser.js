@@ -110,7 +110,7 @@ function getOrCreateNode(name, type) {
                 node = new None(processedName);
                 break;*/
             default:
-                node = new Node(processedName);
+                node = new Node(processedName,true);
                 console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
@@ -188,11 +188,11 @@ function addConnections(line) {
 
     if (line.includes('-->')) {
         const targetName = line.split('-->')[1]?.trim().split(/\s+/)[0] || null;
-        console.log("targetName", targetName);
+        // console.log("targetName", targetName);
         if (targetName && targetName !="none") currentNode.addNeighbor(getOrCreateNode(targetName, 'default'));
     } else if (line.includes('<--')) {
         const sourceName = line.split('<--')[1]?.trim().split(/\s+/)[0] || null;
-        console.log("sourceName", sourceName);
+        // console.log("sourceName", sourceName);
         if (sourceName && sourceName !="none") getOrCreateNode(sourceName, 'default').addNeighbor(currentNode);
     }
 }
