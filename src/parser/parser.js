@@ -80,7 +80,7 @@ function getOrCreateNode(name, type) {
                 node = new KTable(processedName);
                 break;
             case 'kstream-branch':
-                node = new Split(processName);
+                node = new Split(processedName);
                 break;
             case 'store':
                 node = new StateStore(processedName);
@@ -109,6 +109,8 @@ function getOrCreateNode(name, type) {
             /*case 'none':
                 node = new None(processedName);
                 break;*/
+            case 'kstream-branchchild':
+                console.log("Ouch");
             default:
                 node = new Node(processedName);
                 console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
@@ -154,10 +156,10 @@ function extractTopics(line) {
   export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n').map(line => line.trim()).filter(line => line);
     nodeMap.clear();
-
+    console.log("truc");
     // ajout des noeuds dans la nodemap
     lines.forEach(line => processLine(line));
-
+    console.log(nodeMap);
     //ajout des flèches entrte les noeuds
     lines.forEach(line => addConnections(line));
     
@@ -168,10 +170,13 @@ function processLine(line) {
     let match;
     if ((match = line.match(/^Source: (\S+)/))) {
         createNodeWithTopics(match[1], 'source', line);
+        console.log("A" + match);
     } else if ((match = line.match(/^Processor: (\S+)/))) {
         createProcessorNode(match[1], line);
+        console.log("B" + match);
     } else if ((match = line.match(/^Sink: (\S+)/))) {
         createNodeWithTopics(match[1], 'sink', line, true);
+        console.log("C" + match);
     }
 }
 
