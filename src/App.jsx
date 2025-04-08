@@ -92,7 +92,7 @@ const App = () => {
                 </AlertDialogDescription>
                 <AlertDialogTitle>Open Source</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Like the new Michelin Policy we like to work for a better society. This tool is open source and you can find it on <a className="underline text-blue-500" href="">Github</a> under the Apache 2.0 License.
+                  Like the new Michelin Policy we like to work for a better society. This tool is open source and you can find it on <a className="underline text-blue-500" href="https://github.com/Michelin-Ensimag/Kafka-visualization">Github</a> under the Apache 2.0 License.
                 </AlertDialogDescription>
                 <AlertDialogTitle>Developpers</AlertDialogTitle>
                 <AlertDialogDescription>
