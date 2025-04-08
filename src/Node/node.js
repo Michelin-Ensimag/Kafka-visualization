@@ -5,12 +5,13 @@ import {v4 as uuidv4} from 'uuid';
 
 export class Node {
 
-    constructor(label) {
+    constructor(label, node = false) {
         this.label = label;
         this.neighbors = new Set();
         this.json = {};
         this.leftContainerElement = {}
         this.rightContainerElement = {}
+        this.isFullNode =node;
     }
 
     getName(){
@@ -42,7 +43,6 @@ export class Node {
         }
         this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x, y))
         return this.json
-
     }
 
     repositionElements(elements, newX, newY) {
@@ -269,6 +269,19 @@ export class Node {
 
     getLeftContainerElement(){
         return this.leftContainerElement
+    }
+
+    setName(){
+        if(!this.isFullNode) return;
+        for (let i = 0; i < this.json.length; i++) {
+            let elem = this.json[i];
+            console.log(elem,elem.type)
+            if (elem.type === "text" &&( elem.originalText == "Default" || elem.text == "Default")) {
+                elem.text = this.label;
+                elem.originalText = this.label;
+                elem.width = elem.originalText.length*8;
+            }
+        }
     }
 }
 

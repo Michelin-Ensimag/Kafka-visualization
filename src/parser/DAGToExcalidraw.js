@@ -42,6 +42,7 @@ export function createExcalidrawJSON(graph) {
             let y = startY + i * verticalSpacing;
 
             current.generateJson(x, y);
+            current.setName()
             maxWidth = Math.max(maxWidth, current.getElementsWidth());
         }
         currentX += maxWidth + horizontalSpacing;
