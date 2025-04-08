@@ -155,7 +155,6 @@ function extractTopics(line) {
 export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n');
     let currentNode = null;
-    let newNode=null;
     nodeMap.clear();
     let nbSubTopology=0;
     for (let line of lines) {
@@ -226,7 +225,7 @@ export function convertTopoToGraph(topologyText) {
             nbSubTopology+=1;
          }
          else if (line.startsWith("Topologies")){
-            currentNode = getOrCreateNode(`Start`,'Topology');
+            currentNode = getOrCreateNode('Start','Topology'); //On le change directement car Topologies apparait forcément en premier mot du document
          }
             
             

@@ -9,4 +9,69 @@ export class Topology extends Node{
     getName(){
         return "Topology"
     }
+
+    generateJson(xtop, ytop,xbottom,ybottom){
+        super.generateJson(xtop,ytop)
+        let dictionary = {};
+        kstdlibJSON["libraryItems"].forEach(item => {
+            dictionary[item["name"]] = item["elements"];
+        });
+        // console.log('generateJson not implemented for this Node', dictionary);
+        for (let cle in dictionary) {
+            for (let key in dictionary[cle]) {
+                let elem = dictionary[cle][key]
+                let elem_temp = convertToExcalidrawElements([elem])[0]
+                if (elem["type"] === "text") {
+                    elem["baseline"] = elem_temp["baseline"]
+                }
+            }
+        }
+        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));
+        for (let i = 0; i < this.json.length; i++) {
+            let elem = this.json[i];
+
+            if (elem.type === "text" ) {
+                console.log("Modification d'un texte d'un ST en: ", this.label, "Coordonnées: ", elem.x,elem.y);
+                elem.text = this.label;
+                elem.originalText = this.label;
+                // let old_width = elem.width;
+                elem.width = elem.originalText.length*8;
+                // elem.x = elem.x-elem.width/2 + old_width/2;
+            }
+        }
+        console.log(xbottom-xtop,ybottom-ytop);
+        return this.json
+    }
+
+    repositionElements(elements, newX, newY,newWidth,newHeight) {
+        // Créer une copie profonde du tableau pour éviter de modifier l'original
+        const newElements = JSON.parse(JSON.stringify(elements));
+
+        // Si le mode est relatif, calculer le décalage à partir du premier élément
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if ( newElements.length > 0) {
+            // Trouver les coordonnées minimales pour calculer le décalage
+            const minX = Math.min(...newElements.map(elem => elem.x || 0));
+            const minY = Math.min(...newElements.map(elem => elem.y || 0));
+
+            offsetX = newX - minX;
+            offsetY = newY - minY;
+        }
+
+        // Repositionner chaque élément
+        for (let i = 0; i < newElements.length; i++) {
+            const elem = newElements[i];
+
+            if (elem.x !== undefined && elem.y !== undefined) {
+                elem.x += offsetX;
+                elem.y += offsetY;
+            }
+                elem.width= newWidth;
+                elem.height=newHeight;
+        }
+        
+        return newElements;
+    }
 }

@@ -26,9 +26,15 @@ export function createExcalidrawJSON(graph) {
     let xtop=-Infinity;
     let ytop=-Infinity;
     let xbottom=Infinity;
-    let ybottom=Infinity; 
+    let ybottom=Infinity;
+    let xtopTopology=-Infinity;
+    let ytopTopology=-Infinity;
+    let xbottomTopology=Infinity;
+    let ybottomTopology=Infinity;
     let currentX = baseX;
     let currentSub=null;
+    let topologyNode=null
+
     // Placer les noeuds
     for (let distance of sortedDistances) {
         let nodesAtDistance = nodesByDistance.get(distance);
@@ -58,7 +64,8 @@ export function createExcalidrawJSON(graph) {
                 }
             }
             else if (current.getName()=='Topology'){
-
+                console.log('Topology trouvée');
+                topologyNode=current;
             }
             else{      
                 let x = currentX;
@@ -71,6 +78,13 @@ export function createExcalidrawJSON(graph) {
                     xbottom=(xbottom==Infinity ?  x: Math.max(x+current.getJson()[0].width+20,xbottom));
                     ybottom=(ybottom==Infinity ?  y: Math.max(y+current.getJson()[0].height+20,ybottom));
                 }
+
+                if (current!=null&&(current.getName()!='Topology'&&current.getName()!='Sub-topology')){
+                    xtopTopology=(xtopTopology==-Infinity ?  x: Math.min(x-10,xtopTopology));
+                    ytopTopology=(ytopTopology==-Infinity ?  y: Math.min(y-10,ytopTopology));
+                    xbottomTopology=(xbottomTopology==Infinity ?  x: Math.max(x+current.getJson()[0].width+20,xbottomTopology));
+                    ybottomTopology=(ybottomTopology==Infinity ?  y: Math.max(y+current.getJson()[0].height+20,ybottomTopology));
+                }
                 console.log("Dessin pas une ST",x,y);
                 console.log ("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
                 maxWidth = Math.max(maxWidth, current.getElementsWidth());}
@@ -80,6 +94,10 @@ export function createExcalidrawJSON(graph) {
     }
 
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+    if (topologyNode!=null){
+        topologyNode.generateJson(xtopTopology,ytopTopology,xbottomTopology,ybottomTopology);
+    }
+
     elements.push(...currentSub.getJson());
     console.log("Dessin ST");
 
