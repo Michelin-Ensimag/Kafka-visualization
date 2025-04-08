@@ -21,24 +21,13 @@ public class Merge {
 
         StreamsBuilder builder = new StreamsBuilder();
         
-        // Lire les messages depuis un topic Kafka
-        KStream<String, String> sourceStream = builder.stream("input-topic");
-        
-        // split d'abord
-        KStream<String, String>[] branches = sourceStream.branch(
-            (key, value) -> value.contains("error"),
-            (key, value) -> value.contains("warning"),
-            (key, value) -> true
-        );
-        //branches[0].to("error-topic", Produced.with(Serdes.String(), Serdes.String()));
-        //branches[1].to("warning-topic", Produced.with(Serdes.String(), Serdes.String()));
-        //branches[2].to("info-topic", Produced.with(Serdes.String(), Serdes.String()));
+        KStream<String, String> streamIn_1 = builder.stream("TOPIC_A", Consumed.with(Serdes.String(), Serdes.String()));
+        KStream<String, String> streamIn_2 = builder.stream("TOPIC_B", Consumed.with(Serdes.String(), Serdes.String())); 
+        KStream<String, String> streamIn_3 = builder.stream("TOPIC_C", Consumed.with(Serdes.String(), Serdes.String())); 
+        KStream<String, String> streamOut = streamIn_1.merge(streamIn_2).merge(streamIn_3); 
+  
+        streamOut.to("TOPIC_D", Produced.with(Serdes.String(), Serdes.String()));
 
-        // merge
-        KStream<String, String> mergedStream = branches[0].merge(branches[1]).merge(branches[2]);
-        mergedStream.to("merged-topic", Produced.with(Serdes.String(), Serdes.String()));
-        
-        
         Topology t = builder.build();
         System.out.println(t.describe().toString());
     }
