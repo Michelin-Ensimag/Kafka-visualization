@@ -1,26 +1,25 @@
-import { KStreamSourceNode,Node } from '../Node/node.js';
-import { SelectKey } from '../Node/ParentNode/SelectKey.js';
-import { TopicSimple } from '../Node/ParentNode/TopicSimple.js';
-import { TopicAdvanced } from '../Node/ParentNode/TopicAdvanced.js';
-import {Filter} from "../Node/ParentNode/Filter.js";
-import {MapValues} from "../Node/ParentNode/MapValues.js";
-import {GroupBy} from "../Node/ParentNode/GroupBy.js";
-import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
-import {Count} from "../Node/ParentNode/Count.js";
-import {Peek} from "../Node/ParentNode/Peek.js";
-import {ForEach} from "../Node/ParentNode/ForEach.js";
-import {Process} from "../Node/ParentNode/Process.js";
-import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
-import {StateStore} from "../Node/ParentNode/StateStore.js";
-import {FlatMap} from "../Node/ParentNode/FlatMap.js";
-import {KTable} from "../Node/ParentNode/KTable.js";
-import {GlobalKTable} from "../Node/ParentNode/GlobalKTable.js";
-import {Split} from "../Node/ParentNode/Split.js";
-import {Merge} from "../Node/ParentNode/Merge.js";
-import {None} from "../Node/ParentNode/None.js";
-import {Map as MapNode} from "../Node/ParentNode/Map.js";
-import {Join} from "../Node/ParentNode/Join.js";
-import {FlatMapValues} from '../Node/ParentNode/FlatMapValues.js';
+import { KStreamSourceNode,Node } from '@/Node/node.js';
+import { SelectKey } from '@/Node/ParentNode/SelectKey.js';
+import { TopicSimple } from '@/Node/ParentNode/TopicSimple.js';
+import { TopicAdvanced } from '@/Node/ParentNode/TopicAdvanced.js';
+import {Filter} from "@/Node/ParentNode/Filter.js";
+import {MapValues} from "@/Node/ParentNode/MapValues.js";
+import {GroupBy} from "@/Node/ParentNode/GroupBy.js";
+import {ReduceAggregate} from "@/Node/ParentNode/ReduceAggregate.js";
+import {Count} from "@/Node/ParentNode/Count.js";
+import {Peek} from "@/Node/ParentNode/Peek.js";
+import {ForEach} from "@/Node/ParentNode/ForEach.js";
+import {Process} from "@/Node/ParentNode/Process.js";
+import {TopicDefault} from "@/Node/ParentNode/TopicDefault.js";
+import {StateStore} from "@/Node/ParentNode/StateStore.js";
+import {FlatMap} from "@/Node/ParentNode/FlatMap.js";
+import {KTable} from "@/Node/ParentNode/KTable.js";
+import {GlobalKTable} from "@/Node/ParentNode/GlobalKTable.js";
+import {Split} from "@/Node/ParentNode/Split.js";
+import {Merge} from "@/Node/ParentNode/Merge.js";
+import {Map as MapNode} from "@/Node/ParentNode/Map.js";
+import {Join} from "@/Node/ParentNode/Join.js";
+import {FlatMapValues} from '@/Node/ParentNode/FlatMapValues.js';
 import { TransformValues } from '@/Node/ParentNode/TransformValues.js';
 import { ProcessValues } from '@/Node/ParentNode/ProcessValues.js';
 
@@ -36,7 +35,7 @@ function getOrCreateNode(name, type) {
         switch (type.toLowerCase()) {
             case 'source':
             case 'sink':           
-            case 'kstream-tostream':
+            case 'ktable-tostream':
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
@@ -218,7 +217,11 @@ function createProcessorNode(nodeName, line) {
 
 function getProcessorType(nodeName) {
     if (nodeName.includes("-")) {
-        return "kstream-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+        if(nodeName.toLowerCase().includes("kstream"))
+            return "kstream-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+        if(nodeName.toLowerCase().includes("ktable"))
+            return "ktable-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+    
     }
     return nodeName.toLowerCase();
 }
