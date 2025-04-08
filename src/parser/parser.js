@@ -152,6 +152,38 @@ function extractTopics(line) {
     
     return [];
   }
+  function extractStores(line) {
+    // Format: store: [store1,store2] or stores: [store1,store2]
+    // or: store: store1 or stores: store1
+    if (line.includes('store:') || line.includes('stores:')) {
+      let storePart = '';
+      
+      // Determine if we're dealing with the store: or stores: part
+      const storeIdx = line.indexOf('store:');
+      const storesIdx = line.indexOf('stores:');
+      const startIdx = (storeIdx !== -1) ? storeIdx + 6 : storesIdx + 7;
+      
+      // Extract the topic portion after store: or stores:
+      storePart = line.substring(startIdx).trim();
+      
+      // Handle bracketed format [store1,store2]
+      if (storePart.startsWith('[')) {
+        const endIdx = storePart.indexOf(']');
+        if (endIdx !== -1) {
+          storePart = storePart.substring(1, endIdx);
+        }
+      } else {
+        // Handle non-bracketed format: take until next space or end
+        const spaceIdx = storePart.indexOf(')');
+        if (spaceIdx !== -1) {
+          storePart = storePart.substring(0, spaceIdx);
+        }
+      }
+      return storePart.split(',').map(t => t.trim()).filter(t => t);
+    }
+    
+    return [];
+  }
 
   export function convertTopoToGraph(topologyText) {
     const lines = topologyText.split('\n').map(line => line.trim()).filter(line => line);
@@ -211,7 +243,8 @@ function createNodeWithTopics(nodeName, type, line, isSink = false) {
 function createProcessorNode(nodeName, line) {
     const currentNode = getOrCreateNode(nodeName, getProcessorType(nodeName));
     if (line.includes('stores:')) {
-        extractTopics(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
+        console.log(currentNode)
+        extractStores(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
     }
 }
 
