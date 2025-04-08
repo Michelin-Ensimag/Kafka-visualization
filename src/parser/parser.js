@@ -21,6 +21,8 @@ import {None} from "../Node/ParentNode/None.js";
 import {Map as MapNode} from "../Node/ParentNode/Map.js";
 import {Join} from "../Node/ParentNode/Join.js";
 import {FlatMapValues} from '../Node/ParentNode/FlatMapValues.js';
+import { TransformValues } from '@/Node/ParentNode/TransformValues.js';
+import { ProcessValues } from '@/Node/ParentNode/ProcessValues.js';
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -97,6 +99,12 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-flatmapvalues':
                 node = new FlatMapValues(processedName);
+                break;
+            case 'kstream-transformvalues':
+                node = new TransformValues(processedName);
+                break;
+            case 'kstream-processvalues':
+                node = new ProcessValues(processedName);
                 break;
             /*case 'none':
                 node = new None(processedName);
