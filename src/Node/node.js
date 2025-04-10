@@ -14,6 +14,10 @@ export class Node {
         this.isFullNode =node;
     }
 
+    isStateStore(){
+        return false;
+    }
+    
     getName(){
         return "Default";
     }

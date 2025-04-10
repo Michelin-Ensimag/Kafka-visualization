@@ -11,7 +11,7 @@ export class ArrowGenerator {
      * @param {Object} end - Ending point with x and y properties
      * @returns {Object} Arrow JSON object
      */
-    static createArrowJson(start, end) {
+    static createArrowJson(start, end, involvesStateStore = false) {
         const arrow = {};
 
         arrow.type = "arrow";
@@ -33,6 +33,11 @@ export class ArrowGenerator {
         arrow.height = Math.abs(end.y - start.y);
         arrow.seed = Math.abs(crypto.randomUUID().split('-').join(''));
         arrow.groupIds = [];
+        if (involvesStateStore){
+            arrow.strokeStyle = "dashed";
+            arrow.startArrowhead = "arrow";
+            arrow.endArrowhead = "arrow";
+        }
 
         const roundness = {
             type: 2
@@ -58,8 +63,8 @@ export class ArrowGenerator {
      * @param {string} idEnd - ID of the end element
      * @returns {Object} Arrow JSON object with bindings
      */
-    static createArrowJsonWithBindings(start, end, idStart, idEnd) {
-        const arrow = this.createArrowJson(start, end);
+    static createArrowJsonWithBindings(start, end, idStart, idEnd, involvesStateStore = false) {
+        const arrow = this.createArrowJson(start, end, involvesStateStore);
 
         const startBinding = {
             elementId: idStart,

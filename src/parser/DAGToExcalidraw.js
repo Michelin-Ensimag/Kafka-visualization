@@ -56,8 +56,7 @@ export function createExcalidrawJSON(graph) {
             let arrowsPointsStop = neighbor.getBoundaryPoints();
             let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
             let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
-            
-            let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForRightmost(), neighbor.getNodeIdForLeftmost());
+            let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForRightmost(), neighbor.getNodeIdForLeftmost(), node.isStateStore() || neighbor.isStateStore());
 
             // Ajouter la flèche aux boundElements des noeuds
             addBoundedElement(node.getLeftContainerElement(), arrowElement);
