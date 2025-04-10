@@ -1,5 +1,6 @@
 import {Node} from "../node"
-
+import kstdlibJSON from "../../assets/kafka-streams-topology-design.json"
+import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
 
 export class Topology extends Node{
     constructor(label) {

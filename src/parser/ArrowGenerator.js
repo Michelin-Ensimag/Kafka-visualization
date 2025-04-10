@@ -63,16 +63,14 @@ export class ArrowGenerator {
 
         const startBinding = {
             elementId: idStart,
-            focus: -0.6948051948051949,
+            focus: 0,
             gap: 1,
-            fixedPoint: null
         };
 
         const endBinding = {
             elementId: idEnd,
-            focus: -0.8660885091187349,
-            gap: 6,
-            fixedPoint: null
+            focus: 0,
+            gap: 6
         };
 
         arrow.startBinding = startBinding;

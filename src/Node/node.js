@@ -1,6 +1,6 @@
 import { renderToString } from "react-dom/server";
-import kstdlibJSON from "../assets/kafka-streams-topology-design.json"
 import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
+import { generateDictionary } from "@/parser/dictionary";
 import {v4 as uuidv4} from 'uuid';
 
 export class Node {
@@ -9,7 +9,8 @@ export class Node {
         this.label = label;
         this.neighbors = [];
         this.json = {};
-        this.containerElement = {}
+        this.leftContainerElement = {}
+        this.rightContainerElement = {}
     }
 
     getName(){
@@ -33,120 +34,8 @@ export class Node {
         return this.json;
     }
 
-    //TODO changer de place le dictionnaire
     generateJson(x, y) {
-        let dictionary = {};
-        kstdlibJSON["libraryItems"].forEach(item => {
-            dictionary[item["name"]] = item["elements"];
-        });
-        dictionary["Default"] = [{
-          "type": "ellipse",
-          "version": 3742,
-          "versionNonce": 1784336503,
-          "isDeleted": false,
-          "id": "sGH3CUZ3-g2AApfZCECcc",
-          "fillStyle": "solid",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "x": 399.6456402227618,
-          "y": 355.64564022276187,
-          "strokeColor": "#1e1e1e",
-          "backgroundColor": "#ffffff",
-          "width": 60.70871955447628,
-          "height": 60.70871955447628,
-          "seed": 1963978199,
-          "groupIds": [
-            "EYiaaF4ELMNOYkgcaEjz5"
-          ],
-          "frameId": null,
-          "roundness": {
-            "type": 2
-          },
-          "boundElements": [],
-          "updated": 1742906993920,
-          "link": null,
-          "locked": false
-        },
-        {
-          "type": "text",
-          "version": 2870,
-          "versionNonce": 433182329,
-          "isDeleted": false,
-          "id": "r03udux5ypjjwUfcRrqdg",
-          "fillStyle": "solid",
-          "strokeWidth": 1,
-          "strokeStyle": "dotted",
-          "roughness": 1,
-          "opacity": 100,
-          "angle": 0,
-          "x": 415.96395204110604,
-          "y": 374.4369831458885,
-          "strokeColor": "#1e1e1e",
-          "backgroundColor": "transparent",
-          "width": 27.950000762939453,
-          "height": 25,
-          "seed": 715266807,
-          "groupIds": [
-            "EYiaaF4ELMNOYkgcaEjz5"
-          ],
-          "frameId": null,
-          "roundness": null,
-          "boundElements": [],
-          "updated": 1742906993920,
-          "link": null,
-          "locked": false,
-          "fontSize": 20,
-          "fontFamily": 1,
-          "text": "???",
-          "textAlign": "center",
-          "verticalAlign": "top",
-          "containerId": null,
-          "originalText": "???",
-          "lineHeight": 1.25,
-          "baseline": 18
-        },
-        {
-          "id": "mxR1pOHSOhqILYk4-_Xv6",
-          "type": "text",
-          "x": 392,
-          "y": 423,
-          "width": 77.51667022705078,
-          "height": 25,
-          "angle": 0,
-          "strokeColor": "#1e1e1e",
-          "backgroundColor": "transparent",
-          "fillStyle": "solid",
-          "strokeWidth": 2,
-          "strokeStyle": "solid",
-          "roughness": 1,
-          "opacity": 100,
-          "groupIds": [
-            "EYiaaF4ELMNOYkgcaEjz5"
-          ],
-          "frameId": null,
-          "roundness": null,
-          "seed": 239501497,
-          "version": 106,
-          "versionNonce": 95922583,
-          "isDeleted": false,
-          "boundElements": null,
-          "updated": 1742906993920,
-          "link": null,
-          "locked": false,
-          "text": "Default ",
-          "fontSize": 20,
-          "fontFamily": 1,
-          "textAlign": "left",
-          "verticalAlign": "top",
-          "baseline": 18,
-          "containerId": null,
-          "originalText": "Default ",
-          "lineHeight": 1.25
-        }]
-        // console.log('generateJson not implemented for this Node', dictionary);
+        let dictionary = generateDictionary();
         for (let cle in dictionary) {
             for (let key in dictionary[cle]) {
                 let elem = dictionary[cle][key]
@@ -325,37 +214,66 @@ export class Node {
         return maxX - minX;
     }
 
-    getNodeIdForArrow() {
-        // Assuming `this.json` contains the array of elements (like in the structure you shared)
+    getNodeIdForLeftmost() {
+        // Assuming `this.json` contains the array of elements
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
-        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rect'); // Adjust 'rect' if needed
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
     
         if (shapes.length === 0) {
-            this.containerElement = null; // If no ellipses or rectangles are found, set containerElement to null
+            this.rightContainerElement = null; // If no shapes are found, set containerElement to null
             return null;
         }
     
-        // Find the shape with the largest area (width * height)
-        let largestShape = shapes.reduce((maxShape, currentShape) => {
-            let maxArea = maxShape.width * maxShape.height;
-            let currentArea = currentShape.width * currentShape.height;
-    
-            // Compare areas and return the one with the larger area
-            return currentArea > maxArea ? currentShape : maxShape;
+        // Find the shape with the leftmost point (smallest x coordinate)
+        let leftmostShape = shapes.reduce((leftShape, currentShape) => {
+            // Compare the leftmost point of each shape (x position)
+            return currentShape.x < leftShape.x ? currentShape : leftShape;
         });
     
-        // Set this.containerElement to the largest shape element
-        this.containerElement = largestShape;
+        // Set this.containerElement to the leftmost shape element
+        this.rightContainerElement = leftmostShape;
     
-        // Return the ID of the largest shape
-        return largestShape.id;
+        // Return the ID of the leftmost shape
+        return leftmostShape.id;
     }
+
+    getNodeIdForRightmost() {
+        // Assuming `this.json` contains the array of elements
+        let elem = this.json;
     
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.leftContainerElement = null; // If no shapes are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the rightmost point (largest x + width)
+        let rightmostShape = shapes.reduce((rightShape, currentShape) => {
+            // Compare the rightmost point of each shape (x + width)
+            return (currentShape.x + currentShape.width) > (rightShape.x + rightShape.width) ? currentShape : rightShape;
+        });
+    
+        // Set this.containerElement to the rightmost shape element
+        this.leftContainerElement = rightmostShape;
+    
+        // Return the ID of the rightmost shape
+        return rightmostShape.id;
+    }
 
     getContainerElement(){
         return this.containerElement
+    }
+
+    getRigthContainerElement(){
+        return this.rightContainerElement
+    }
+
+    getLeftContainerElement(){
+        return this.leftContainerElement
     }
 }
 
@@ -370,7 +288,6 @@ export class KStreamSourceNode extends Node {
 
     generateJson(x, y) {
         super.generateJson(x, y);
-        console.log(this.label, this.json)
         return this.json;
     }
 }

@@ -7,9 +7,10 @@ import {MapValues} from "../Node/ParentNode/MapValues.js";
 import {GroupBy} from "../Node/ParentNode/GroupBy.js";
 import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
 import {Count} from "../Node/ParentNode/Count.js";
-import {Peek} from "../Node/ParentNode/Peek.js";
-import {SubTopology} from "../Node/ParentNode/SubTopology.js";
 import {Topology} from "../Node/ParentNode/Topology.js";
+import {SubTopology} from "../Node/ParentNode/SubTopology.js";
+
+import {Peek} from "../Node/ParentNode/Peek.js";
 import {ForEach} from "../Node/ParentNode/ForEach.js";
 import {Process} from "../Node/ParentNode/Process.js";
 import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
@@ -23,6 +24,8 @@ import {None} from "../Node/ParentNode/None.js";
 import {Map as MapNode} from "../Node/ParentNode/Map.js";
 import {Join} from "../Node/ParentNode/Join.js";
 import {FlatMapValues} from '../Node/ParentNode/FlatMapValues.js';
+import { TransformValues } from '@/Node/ParentNode/TransformValues.js';
+import { ProcessValues } from '@/Node/ParentNode/ProcessValues.js';
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -31,7 +34,6 @@ export function processName(n) {
 
 function getOrCreateNode(name, type) {
     const processedName = processName(name);
-    //console.log("type", type);
     if (!nodeMap.has(processedName)) {
         let node;
         switch (type.toLowerCase()) {
@@ -40,17 +42,11 @@ function getOrCreateNode(name, type) {
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
-            case 'topology':
-                node = new Topology(processedName);
-                console.log("Creation d'un noeud Topology")
             case 'kstream-sink':
                 node = new TopicAdvanced(processedName);
                 break;
             case 'topic':
                 node = new TopicAdvanced(processedName);
-                break;
-            case 'sub-topology':
-                node = new SubTopology(processedName);
                 break;
             case 'kstream-filter':
                 node = new Filter(processedName);
@@ -63,6 +59,14 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-flatmap':
                 node = new FlatMap(processedName);
+            case 'topology':
+                node = new Topology(processedName);
+                console.log("Creation topology");
+                console.log(node.getName(), node.label);
+                break;
+            case 'sub-topology':
+                node = new SubTopology(processedName);
+                console.log("Creation sub-topology");
                 break;
             case 'kstream-groupby':
                 node = new GroupBy(processedName);
@@ -107,12 +111,18 @@ function getOrCreateNode(name, type) {
             case 'kstream-flatmapvalues':
                 node = new FlatMapValues(processedName);
                 break;
+            case 'kstream-transformvalues':
+                node = new TransformValues(processedName);
+                break;
+            case 'kstream-processvalues':
+                node = new ProcessValues(processedName);
+                break;
             /*case 'none':
                 node = new None(processedName);
                 break;*/
             default:
                 node = new Node(processedName);
-                //console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
+                console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
     }
@@ -152,180 +162,249 @@ function extractTopics(line) {
     return [];
   }
 
-export function convertTopoToGraph(topologyText) {
-    const lines = topologyText.split('\n');
-    let currentNode = null;
+  export function convertTopoToGraph(topologyText) {
+    const lines = topologyText.split('\n').map(line => line.trim()).filter(line => line);
     nodeMap.clear();
-    let nbSubTopology=0;
-    for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
 
-        //console.log('convertTopoToGraphLine', line);
+    // ajout des noeuds dans la nodemap
+    lines.forEach(line => processLine(line));
 
-        if (line.startsWith('Source:')) {
-            const parts = line.match(/Source: (\S+)/);
-            if (parts) {
-                const nodeName = parts[1];
-                currentNode = getOrCreateNode(nodeName, 'source');
-                const topics = extractTopics(line);
-                for (let topic of topics) {
-                    const topicNode = getOrCreateNode(topic, 'topic');
-                    topicNode.addNeighbor(currentNode);
-                }
-            }
-        } else if (line.startsWith('Processor:')) {
-            const parts = line.match(/Processor: (\S+)/);
-            if (parts) {
-                const nodeName = parts[1];
-
-                // Determine processor type from the name
-                let processorType;
-                if (nodeName.includes("-")) {
-                    processorType = nodeName
-                        .split('-')
-                        .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
-                        .join('-')     // Join them back with a dash
-                        .toLowerCase(); // Convert to lowercase
-                    processorType = "kstream-"+processorType;
-                } else {
-                    // Fallback for cases like "INNER_JOIN"
-                    processorType = nodeName.toLowerCase();
-                }
-
-                currentNode = getOrCreateNode(nodeName, processorType);
-
-                if (line.includes('stores:')) {
-                    const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
-                    const stores = storesStr.split(',').map(s => s.trim());
-                    for (let store of stores) {
-                        if (store) {
-                            const storeNode = getOrCreateNode(store, 'store');
-                            storeNode.addNeighbor(currentNode);
-                        }
-                    }
-                }
-            }
-
-        } else if (line.startsWith('Sink:')) {
-            const parts = line.match(/Sink: (\S+)/);
-            if (parts) {
-                const nodeName = parts[1];
-                currentNode = getOrCreateNode(nodeName, 'sink');
-                const topics = extractTopics(line);
-                for (let topic of topics) {
-                    const topicNode = getOrCreateNode(topic, 'topic');
-                    currentNode.addNeighbor(topicNode); // Sink flows to topic
-                }
-            }
-        }
-         else if (line.startsWith("Sub-topology")){
-            currentNode.addNeighbor(getOrCreateNode(`${nbSubTopology}`,'Sub-topology'));
-            console.log("Creation d'un noeud sub-topology")
-            nbSubTopology+=1;
-         }
-         else if (line.startsWith("Topologies")){
-            currentNode = getOrCreateNode('Start','Topology'); //On le change directement car Topologies apparait forcément en premier mot du document
-         }
-            
-            
-        else{
-            console.log('Unknown line:', line);
-        }
-    }
-
-    for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-
-        //console.log('convertTopoToGraphLine', line);
-
-        if (line.startsWith('Source:')) {
-            const parts = line.match(/Source: (\S+)/);
-            if (parts) {
-                const nodeName = parts[1];
-                
-                currentNode = getOrCreateNode(nodeName, 'source');
-                const topics = extractTopics(line);
-                for (let topic of topics) {
-                    const topicNode = getOrCreateNode(topic, 'topic');
-                    topicNode.addNeighbor(currentNode);
-                }
-            }
-        } else if (line.startsWith('Processor:')) {
-            const parts = line.match(/Processor: (\S+)/);
-            if (parts) {
-                const nodeName = parts[1];
-
-                // Determine processor type from the name
-                let processorType;
-                if (nodeName.includes("-")) {
-                    processorType = nodeName
-                        .split('-')
-                        .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
-                        .join('-')     // Join them back with a dash
-                        .toLowerCase(); // Convert to lowercase
-                } else {
-                    // Fallback for cases like "INNER_JOIN"
-                    processorType = nodeName.toLowerCase();
-                }
-
-                currentNode = getOrCreateNode(nodeName, processorType);
-
-                if (line.includes('stores:')) {
-                    const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
-                    const stores = storesStr.split(',').map(s => s.trim());
-                    for (let store of stores) {
-                        if (store) {
-                            const storeNode = getOrCreateNode(store, 'store');
-                            storeNode.addNeighbor(currentNode);
-                        }
-                    }
-                }
-            }
-        } else if (line.startsWith('Sink:')) {
-            const parts = line.match(/Sink: (\S+)/);
-            if (parts) {
-                const nodeName = parts[1];
-                currentNode = getOrCreateNode(nodeName, 'sink');
-                const topics = extractTopics(line);
-                for (let topic of topics) {
-                    const topicNode = getOrCreateNode(topic, 'topic');
-                    currentNode.addNeighbor(topicNode); // Sink flows to topic
-                }
-            }
-        } else if (line.includes('-->')) {
-            const parts = line.split('-->');
-            const targetName = parts[1].trim().split(/\s+/)[0]; // Get first word after -->
-            if (targetName && currentNode) {
-                const targetNode = getOrCreateNode(targetName, 'default');
-                currentNode.addNeighbor(targetNode);
-            }
-        } else if (line.includes('<--')) {
-            const parts = line.split('<--');
-            const sourceName = parts[1].trim().split(/\s+/)[0]; // Get first word after <--
-            if (sourceName && currentNode) {
-                const sourceNode = getOrCreateNode(sourceName, 'default');
-                sourceNode.addNeighbor(currentNode);
-            }
-        } else if(line.startsWith("Sub-topology")){}
-        else if (line.startsWith("Topologies")){}
-            else {
-            console.log('Unknown line:', line);
-        }
-    }
-    //console.log("MAP", [...nodeMap.values()]);
+    //ajout des flèches entrte les noeuds
+    lines.forEach(line => addConnections(line));
+    
     return Array.from(nodeMap.values());
 }
 
+function processLine(line) {
+    let match;
+    if ((match = line.match(/^Source: (\S+)/))) {
+        createNodeWithTopics(match[1], 'source', line);
+    } else if ((match = line.match(/^Processor: (\S+)/))) {
+        createProcessorNode(match[1], line);
+    } else if ((match = line.match(/^Sink: (\S+)/))) {
+        createNodeWithTopics(match[1], 'sink', line, true);
+    }
+    else if (line.startsWith("Topologies")) {
+        getOrCreateNode("Topology","Topology");
+    } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
+        getOrCreateNode(match[1],"Sub-topology");
+    }
+
+
+}
+
+let match, currentNode,currentSub, currentTopology;
+let firstST=true;
+function addConnections(line) {
+    if ((match = line.match(/^Source: (\S+)/))) {
+        currentNode = getOrCreateNode(match[1], 'source');
+    } else if ((match = line.match(/^Processor: (\S+)/))) {
+        currentNode = getOrCreateNode(match[1], getProcessorType(match[1]));
+    } else if ((match = line.match(/^Sink: (\S+)/))) {
+        currentNode = getOrCreateNode(match[1], 'sink');
+    } else if (line.startsWith("Topologies")) {
+        console.log("Gerer les liens des T")
+        currentTopology=getOrCreateNode("Topology","Topology");
+    } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
+        currentSub=getOrCreateNode(match[1],"Sub-topology");
+    }
+    
+    if (!currentNode) return;
+
+    if (line.includes('-->')) {
+        const targetName = line.split('-->')[1]?.trim().split(/\s+/)[0] || null;
+        console.log("targetName", targetName);
+        if (targetName && targetName !="none") currentNode.addNeighbor(getOrCreateNode(targetName, 'default'));
+    } else if (line.includes('<--')) {
+        const sourceName = line.split('<--')[1]?.trim().split(/\s+/)[0] || null;
+        console.log("sourceName", sourceName);
+        if (sourceName && sourceName !="none") getOrCreateNode(sourceName, 'default').addNeighbor(currentNode);
+    } else if ((match = line.match(/^Sub-topology: (\S+)/))){
+        currentNode.addSubTopology(currentSub);
+        currentNode=currentSub;
+    }
+}
+
+function createNodeWithTopics(nodeName, type, line, isSink = false) {
+    const currentNode = getOrCreateNode(nodeName, type);
+    extractTopics(line).forEach(topic => {
+        const topicNode = getOrCreateNode(topic, 'topic');
+        isSink ? currentNode.addNeighbor(topicNode) : topicNode.addNeighbor(currentNode);
+    });
+}
+
+function createProcessorNode(nodeName, line) {
+    const currentNode = getOrCreateNode(nodeName, getProcessorType(nodeName));
+    if (line.includes('stores:')) {
+        extractTopics(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
+    }
+}
+
+function getProcessorType(nodeName) {
+    if (nodeName.includes("-")) {
+        return "kstream-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+    }
+    return nodeName.toLowerCase();
+}
+
+
+// export function convertTopoToGraph(topologyText) {
+//     const lines = topologyText.split('\n');
+//     let currentNode = null;
+//     nodeMap.clear();
+
+//     for (let line of lines) {
+//         line = line.trim();
+//         if (!line) continue;
+
+
+//         if (line.startsWith('Source:')) {
+//             const parts = line.match(/Source: (\S+)/);
+//             if (parts) {
+//                 const nodeName = parts[1];
+//                 currentNode = getOrCreateNode(nodeName, 'source');
+//                 const topics = extractTopics(line);
+//                 for (let topic of topics) {
+//                     const topicNode = getOrCreateNode(topic, 'topic');
+//                     topicNode.addNeighbor(currentNode);
+//                 }
+//             }
+//         } else if (line.startsWith('Processor:')) {
+//             const parts = line.match(/Processor: (\S+)/);
+//             if (parts) {
+//                 const nodeName = parts[1];
+
+//                 // Determine processor type from the name
+//                 let processorType;
+//                 if (nodeName.includes("-")) {
+//                     processorType = nodeName
+//                         .split('-')
+//                         .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
+//                         .join('-')     // Join them back with a dash
+//                         .toLowerCase(); // Convert to lowercase
+//                     processorType = "kstream-"+processorType;
+//                 } else {
+//                     // Fallback for cases like "INNER_JOIN"
+//                     processorType = nodeName.toLowerCase();
+//                 }
+
+//                 currentNode = getOrCreateNode(nodeName, processorType);
+
+//                 if (line.includes('stores:')) {
+//                     const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+//                     const stores = storesStr.split(',').map(s => s.trim());
+//                     for (let store of stores) {
+//                         if (store) {
+//                             const storeNode = getOrCreateNode(store, 'store');
+//                             storeNode.addNeighbor(currentNode);
+//                         }
+//                     }
+//                 }
+//             }
+
+//         } else if (line.startsWith('Sink:')) {
+//             const parts = line.match(/Sink: (\S+)/);
+//             if (parts) {
+//                 const nodeName = parts[1];
+//                 currentNode = getOrCreateNode(nodeName, 'sink');
+//                 const topics = extractTopics(line);
+//                 for (let topic of topics) {
+//                     const topicNode = getOrCreateNode(topic, 'topic');
+//                     currentNode.addNeighbor(topicNode); // Sink flows to topic
+//                 }
+//             }
+//         }
+//          else {
+//             // console.log('Unknown line:', line);
+//         }
+//     }
+
+//     for (let line of lines) {
+//         line = line.trim();
+//         if (!line) continue;
+
+//         if (line.startsWith('Source:')) {
+//             const parts = line.match(/Source: (\S+)/);
+//             if (parts) {
+//                 const nodeName = parts[1];
+//                 currentNode = getOrCreateNode(nodeName, 'source');
+//                 const topics = extractTopics(line);
+//                 for (let topic of topics) {
+//                     const topicNode = getOrCreateNode(topic, 'topic');
+//                     topicNode.addNeighbor(currentNode);
+//                 }
+//             }
+//         } else if (line.startsWith('Processor:')) {
+//             const parts = line.match(/Processor: (\S+)/);
+//             if (parts) {
+//                 const nodeName = parts[1];
+
+//                 // Determine processor type from the name
+//                 let processorType;
+//                 if (nodeName.includes("-")) {
+//                     processorType = nodeName
+//                         .split('-')
+//                         .slice(1, -1) // Take all parts except the first (kstream) and last (numeric ID)
+//                         .join('-')     // Join them back with a dash
+//                         .toLowerCase(); // Convert to lowercase
+//                 } else {
+//                     // Fallback for cases like "INNER_JOIN"
+//                     processorType = nodeName.toLowerCase();
+//                 }
+
+//                 currentNode = getOrCreateNode(nodeName, processorType);
+
+//                 if (line.includes('stores:')) {
+//                     const storesStr = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+//                     const stores = storesStr.split(',').map(s => s.trim());
+//                     for (let store of stores) {
+//                         if (store) {
+//                             const storeNode = getOrCreateNode(store, 'store');
+//                             storeNode.addNeighbor(currentNode);
+//                         }
+//                     }
+//                 }
+//             }
+//         } else if (line.startsWith('Sink:')) {
+//             const parts = line.match(/Sink: (\S+)/);
+//             if (parts) {
+//                 const nodeName = parts[1];
+//                 currentNode = getOrCreateNode(nodeName, 'sink');
+//                 const topics = extractTopics(line);
+//                 for (let topic of topics) {
+//                     const topicNode = getOrCreateNode(topic, 'topic');
+//                     currentNode.addNeighbor(topicNode); // Sink flows to topic
+//                 }
+//             }
+//         } else if (line.includes('-->')) {
+//             const parts = line.split('-->');
+            
+//             const targetName = parts[1].trim().split(/\s+/)[0]; // Get first word after -->
+//             if (targetName && currentNode && targetName!="none") {
+//                 const targetNode = getOrCreateNode(targetName, 'default');
+//                 currentNode.addNeighbor(targetNode);
+//             }
+//         } else if (line.includes('<--')) {
+//             const parts = line.split('<--');
+//             const sourceName = parts[1].trim().split(/\s+/)[0]; // Get first word after <--
+//             if (sourceName && currentNode) {
+//                 const sourceNode = getOrCreateNode(sourceName, 'default');
+//                 sourceNode.addNeighbor(currentNode);
+//             }
+//         } else {
+//             //console.log('Unknown line:', line);
+//         }
+//     }
+//     return Array.from(nodeMap.values());
+// }
+
 export function printGraph(nodes) {
-    //console.log('Graph contents:');
+    console.log('Graph contents:');
     nodes.forEach(node => {
-        //console.log(`${node.label} -> ${node.getNeighbors().map(n => n.label).join(', ')}`);
+        console.log(`${node.label} -> ${node.getNeighbors().map(n => n.label).join(', ')}`);
     });
 }
 
 export function getTextAreaValue() {
-    //console.log('getTextAreaValue', document.getElementById('topo').value);
     return document.getElementById('topo').value;
 }

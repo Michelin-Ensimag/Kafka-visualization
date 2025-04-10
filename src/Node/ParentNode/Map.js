@@ -7,7 +7,6 @@ export class Map extends Node{
     }
 
     getName(){
-        //console.log("MapValues")
         return "map"
     }
 }

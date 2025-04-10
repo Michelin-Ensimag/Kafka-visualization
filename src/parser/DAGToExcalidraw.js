@@ -1,5 +1,6 @@
 import { TopologicalSorter } from './TopologicalSorter.js';
 import { ArrowGenerator } from "./ArrowGenerator.js";
+import { node } from 'globals';
 
 export function createExcalidrawJSON(graph) {
     let elements = [];
@@ -36,40 +37,53 @@ export function createExcalidrawJSON(graph) {
     let topologyNode=null
 
     // Placer les noeuds
+    console.log("Début dessin");
     for (let distance of sortedDistances) {
+
         let nodesAtDistance = nodesByDistance.get(distance);
 
-        // Pour centrer verticalement quand il y a plusieurs noeuds
-        let totalHeight = (nodesAtDistance.length - 1) * verticalSpacing;
+        // Pour centrer verticalement quand il y a plusieurs noeuds, cependant, petit changement dans le cas des noeud (Sub)Topology, que l'on ne compte pas
+        let totalHeight=-1;
+        for (let i=0;i< nodesAtDistance.length;i++){
+            let current=nodesAtDistance[i];
+            if ((current.getName()!='Topology'&&current.getName()!='Sub-topology')){
+                totalHeight+=1;
+            }
+        }
+        console.log(totalHeight,nodesAtDistance.length)
+        totalHeight = totalHeight * verticalSpacing;
         let startY = baseY - totalHeight / 2;
-
+        let verticalOffset=0
         let maxWidth = 0;
-
         for (let i = 0; i < nodesAtDistance.length; i++) {
+
             let current = nodesAtDistance[i];
-            console.log(current.getName());
-            if(current.getName()=='Sub-topology'){
+            console.log(current.getName(),current.label);
+            if(current.getName()=="Sub-topology"){
                 if(currentSub==null){
                     currentSub=current;
+                    console.log(currentSub.label, currentSub.getName());
                 }
                 else{
+                    console.log(currentSub.label, currentSub.getName());
                     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
                     elements.push(...currentSub.getJson());
-                    console.log("Dessin ST")
+                    console.log("Dessin ST", xtop, ytop, xbottom, ybottom);
                     xtop=-Infinity;
                     ytop=-Infinity;
                     xbottom=Infinity;
                     ybottom=Infinity;
                     currentSub=current;
                 }
+                verticalOffset+=1
             }
-            else if (current.getName()=='Topology'){
-                console.log('Topology trouvée');
+            else if (current.getName()=="Topology"){
                 topologyNode=current;
+                verticalOffset+=1
             }
             else{      
                 let x = currentX;
-                let y = startY + i * verticalSpacing;
+                let y = startY + (i-(verticalOffset)) * verticalSpacing;
                 //Maj des boundaries de la sub-topology
                 current.generateJson(x, y);
                 if(current!=null&&(current.getName()!='Topic Advanced'&&current.getName()!='State Store')){
@@ -80,10 +94,10 @@ export function createExcalidrawJSON(graph) {
                 }
 
                 if (current!=null&&(current.getName()!='Topology'&&current.getName()!='Sub-topology')){
-                    xtopTopology=(xtopTopology==-Infinity ?  x: Math.min(x-10,xtopTopology));
-                    ytopTopology=(ytopTopology==-Infinity ?  y: Math.min(y-10,ytopTopology));
-                    xbottomTopology=(xbottomTopology==Infinity ?  x: Math.max(x+current.getJson()[0].width+20,xbottomTopology));
-                    ybottomTopology=(ybottomTopology==Infinity ?  y: Math.max(y+current.getJson()[0].height+20,ybottomTopology));
+                    xtopTopology=(xtopTopology==-Infinity ?  x: Math.min(x-50,xtopTopology));
+                    ytopTopology=(ytopTopology==-Infinity ?  y: Math.min(y-50,ytopTopology));
+                    xbottomTopology=(xbottomTopology==Infinity ?  x: Math.max(x+current.getJson()[0].width+60,xbottomTopology));
+                    ybottomTopology=(ybottomTopology==Infinity ?  y: Math.max(y+current.getJson()[0].height+60,ybottomTopology));
                 }
                 console.log("Dessin pas une ST",x,y);
                 console.log ("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
@@ -94,10 +108,7 @@ export function createExcalidrawJSON(graph) {
     }
 
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
-    if (topologyNode!=null){
-        topologyNode.generateJson(xtopTopology,ytopTopology,xbottomTopology,ybottomTopology);
-    }
-
+    topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology)
     elements.push(...currentSub.getJson());
     console.log("Dessin ST");
 
@@ -114,7 +125,7 @@ export function createExcalidrawJSON(graph) {
                 //console.log("test id")
                 //console.log(node.getNodeIdForArrow())
                 //console.log(neighbor.getNodeIdForArrow())
-                let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForArrow(), neighbor.getNodeIdForArrow());
+                let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForLeftmost(), neighbor.getNodeIdForRightmost());
     
                 // Ajouter la flèche aux boundElements des noeuds
                 addBoundedElement(node.getContainerElement(), arrowElement);

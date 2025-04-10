@@ -18,7 +18,7 @@ import org.apache.log4j.BasicConfigurator;
 
 import java.util.Properties;
 
-public class ProcessValue {
+public class TransformValues {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "keytable-example-app");
@@ -29,12 +29,12 @@ public class ProcessValue {
         BasicConfigurator.configure();
 
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> sourceStream = builder.stream("input-topic");
 
-
-        // KStream<String,Object> transformedStream = sourceStream.processValues(() -> value -> "Transformed: " + value);
-        // transformedStream.to("transformed-topic");
+        KStream<String, String> streamIn_1 = streamsBuilder.stream("TOPIC_A", Consumed.with(Serdes.String(), Serdes.String())); 
+        KStream<String, String> streamOut = streamIn_1.transformValues(CustomTransformValues::new); 
         
+        streamOut.to("TOPIC_D", Produced.with(Serdes.String(), Serdes.String()));
+
         Topology t = builder.build();
         System.out.println(t.describe().toString());
     }
