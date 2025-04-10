@@ -101,6 +101,7 @@ function getOrCreateNode(name, type) {
                 node = new FlatMapValues(processedName);
                 break;
             case 'kstream-transformvalues':
+            case 'kstream-transform':
                 node = new TransformValues(processedName);
                 break;
             case 'kstream-processvalues':
@@ -200,22 +201,22 @@ function extractTopics(line) {
 
 function processLine(line) {
     let match;
-    if ((match = line.match(/^Source: (\S+)/))) {
+    if ((match = line.match(/^Source: +(\S+)/))) {
         createNodeWithTopics(match[1], 'source', line);
-    } else if ((match = line.match(/^Processor: (\S+)/))) {
+    } else if ((match = line.match(/^Processor: +(\S+)/))) {
         createProcessorNode(match[1], line);
-    } else if ((match = line.match(/^Sink: (\S+)/))) {
+    } else if ((match = line.match(/^Sink: +(\S+)/))) {
         createNodeWithTopics(match[1], 'sink', line, true);
     }
 }
 
 let match, currentNode;
 function addConnections(line) {
-    if ((match = line.match(/^Source: (\S+)/))) {
+    if ((match = line.match(/^Source: +(\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'source');
-    } else if ((match = line.match(/^Processor: (\S+)/))) {
+    } else if ((match = line.match(/^Processor: +(\S+)/))) {
         currentNode = getOrCreateNode(match[1], getProcessorType(match[1]));
-    } else if ((match = line.match(/^Sink: (\S+)/))) {
+    } else if ((match = line.match(/^Sink: +(\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'sink');
     }
     if (!currentNode) return;
