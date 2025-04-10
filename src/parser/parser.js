@@ -52,6 +52,7 @@ function getOrCreateNode(name, type) {
                 node = new MapValues(processedName);
                 break;
             case 'kstream-key-select':
+            case 'ktable-select':
                 node = new SelectKey(processedName);
                 break;
             case 'kstream-flatmap':
@@ -62,6 +63,8 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-reduce':
             case 'kstream-aggregate':
+            case 'ktable-reduce':
+            case 'ktable-aggregate':
                 node = new ReduceAggregate(processedName);
                 break;
             case 'kstream-count':
