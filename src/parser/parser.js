@@ -1,26 +1,27 @@
-import { KStreamSourceNode,Node } from '../Node/node.js';
-import { SelectKey } from '../Node/ParentNode/SelectKey.js';
-import { TopicSimple } from '../Node/ParentNode/TopicSimple.js';
-import { TopicAdvanced } from '../Node/ParentNode/TopicAdvanced.js';
-import {Filter} from "../Node/ParentNode/Filter.js";
-import {MapValues} from "../Node/ParentNode/MapValues.js";
-import {GroupBy} from "../Node/ParentNode/GroupBy.js";
-import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
-import {Count} from "../Node/ParentNode/Count.js";
-import {Peek} from "../Node/ParentNode/Peek.js";
-import {ForEach} from "../Node/ParentNode/ForEach.js";
-import {Process} from "../Node/ParentNode/Process.js";
-import {TopicDefault} from "../Node/ParentNode/TopicDefault.js";
-import {StateStore} from "../Node/ParentNode/StateStore.js";
-import {FlatMap} from "../Node/ParentNode/FlatMap.js";
-import {KTable} from "../Node/ParentNode/KTable.js";
-import {GlobalKTable} from "../Node/ParentNode/GlobalKTable.js";
-import {Split} from "../Node/ParentNode/Split.js";
-import {Merge} from "../Node/ParentNode/Merge.js";
-import {None} from "../Node/ParentNode/None.js";
-import {Map as MapNode} from "../Node/ParentNode/Map.js";
-import {Join} from "../Node/ParentNode/Join.js";
-import {FlatMapValues} from '../Node/ParentNode/FlatMapValues.js';
+import { KStreamSourceNode,Node } from '@/Node/node.js';
+import { SelectKey } from '@/Node/ParentNode/SelectKey.js';
+import { TopicSimple } from '@/Node/ParentNode/TopicSimple.js';
+import { TopicAdvanced } from '@/Node/ParentNode/TopicAdvanced.js';
+import {Filter} from "@/Node/ParentNode/Filter.js";
+import {MapValues} from "@/Node/ParentNode/MapValues.js";
+import {GroupBy} from "@/Node/ParentNode/GroupBy.js";
+import {ReduceAggregate} from "@/Node/ParentNode/ReduceAggregate.js";
+import {Count} from "@/Node/ParentNode/Count.js";
+import {Peek} from "@/Node/ParentNode/Peek.js";
+import {ForEach} from "@/Node/ParentNode/ForEach.js";
+import {Process} from "@/Node/ParentNode/Process.js";
+import {TopicDefault} from "@/Node/ParentNode/TopicDefault.js";
+import {StateStore} from "@/Node/ParentNode/StateStore.js";
+import {FlatMap} from "@/Node/ParentNode/FlatMap.js";
+import {KTable} from "@/Node/ParentNode/KTable.js";
+import {GlobalKTable} from "@/Node/ParentNode/GlobalKTable.js";
+import {Split} from "@/Node/ParentNode/Split.js";
+import {Merge} from "@/Node/ParentNode/Merge.js";
+import {Map as MapNode} from "@/Node/ParentNode/Map.js";
+import {Join} from "@/Node/ParentNode/Join.js";
+import {FlatMapValues} from '@/Node/ParentNode/FlatMapValues.js';
+import { TransformValues } from '@/Node/ParentNode/TransformValues.js';
+import { ProcessValues } from '@/Node/ParentNode/ProcessValues.js';
 
 let nodeMap = new Map();
 export function processName(n) {
@@ -33,7 +34,8 @@ function getOrCreateNode(name, type) {
         let node;
         switch (type.toLowerCase()) {
             case 'source':
-            case 'sink':
+            case 'sink':           
+            case 'ktable-tostream':
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
@@ -50,6 +52,7 @@ function getOrCreateNode(name, type) {
                 node = new MapValues(processedName);
                 break;
             case 'kstream-key-select':
+            case 'ktable-select':
                 node = new SelectKey(processedName);
                 break;
             case 'kstream-flatmap':
@@ -60,6 +63,8 @@ function getOrCreateNode(name, type) {
                 break;
             case 'kstream-reduce':
             case 'kstream-aggregate':
+            case 'ktable-reduce':
+            case 'ktable-aggregate':
                 node = new ReduceAggregate(processedName);
                 break;
             case 'kstream-count':
@@ -78,7 +83,7 @@ function getOrCreateNode(name, type) {
                 node = new KTable(processedName);
                 break;
             case 'kstream-branch':
-                node = new Split(processName);
+                node = new Split(processedName);
                 break;
             case 'store':
                 node = new StateStore(processedName);
@@ -98,11 +103,20 @@ function getOrCreateNode(name, type) {
             case 'kstream-flatmapvalues':
                 node = new FlatMapValues(processedName);
                 break;
+            case 'kstream-transformvalues':
+            case 'kstream-transform':
+                node = new TransformValues(processedName);
+                break;
+            case 'kstream-processvalues':
+                node = new ProcessValues(processedName);
+                break;
             /*case 'none':
                 node = new None(processedName);
                 break;*/
+            case 'kstream-branchchild':
+                //TODO ?
             default:
-                node = new Node(processedName);
+                node = new Node(processedName,true);
                 console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
@@ -138,6 +152,38 @@ function extractTopics(line) {
         }
       }
       return topicPart.split(',').map(t => t.trim()).filter(t => t);
+    }
+    
+    return [];
+  }
+  function extractStores(line) {
+    // Format: store: [store1,store2] or stores: [store1,store2]
+    // or: store: store1 or stores: store1
+    if (line.includes('store:') || line.includes('stores:')) {
+      let storePart = '';
+      
+      // Determine if we're dealing with the store: or stores: part
+      const storeIdx = line.indexOf('store:');
+      const storesIdx = line.indexOf('stores:');
+      const startIdx = (storeIdx !== -1) ? storeIdx + 6 : storesIdx + 7;
+      
+      // Extract the topic portion after store: or stores:
+      storePart = line.substring(startIdx).trim();
+      
+      // Handle bracketed format [store1,store2]
+      if (storePart.startsWith('[')) {
+        const endIdx = storePart.indexOf(']');
+        if (endIdx !== -1) {
+          storePart = storePart.substring(1, endIdx);
+        }
+      } else {
+        // Handle non-bracketed format: take until next space or end
+        const spaceIdx = storePart.indexOf(')');
+        if (spaceIdx !== -1) {
+          storePart = storePart.substring(0, spaceIdx);
+        }
+      }
+      return storePart.split(',').map(t => t.trim()).filter(t => t);
     }
     
     return [];
@@ -184,33 +230,34 @@ function extractTopics(line) {
 
 function processLine(line) {
     let match;
-    if ((match = line.match(/^Source: (\S+)/))) {
+    if ((match = line.match(/^Source: +(\S+)/))) {
         createNodeWithTopics(match[1], 'source', line);
-    } else if ((match = line.match(/^Processor: (\S+)/))) {
+    } else if ((match = line.match(/^Processor: +(\S+)/))) {
         createProcessorNode(match[1], line);
-    } else if ((match = line.match(/^Sink: (\S+)/))) {
+    } else if ((match = line.match(/^Sink: +(\S+)/))) {
         createNodeWithTopics(match[1], 'sink', line, true);
     }
 }
 
 let match, currentNode;
 function addConnections(line) {
-    if ((match = line.match(/^Source: (\S+)/))) {
+    if ((match = line.match(/^Source: +(\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'source');
-    } else if ((match = line.match(/^Processor: (\S+)/))) {
+    } else if ((match = line.match(/^Processor: +(\S+)/))) {
         currentNode = getOrCreateNode(match[1], getProcessorType(match[1]));
-    } else if ((match = line.match(/^Sink: (\S+)/))) {
+    } else if ((match = line.match(/^Sink: +(\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'sink');
     }
     if (!currentNode) return;
 
     if (line.includes('-->')) {
-        const targetName = line.split('-->')[1]?.trim().split(/\s+/)[0] || null;
-        console.log("targetName", targetName);
+        const targetName = line.split('-->')[1]?.trim().split(/[\s,]+/)[0] || null;
+        // ANCIENNE REGEX : /\s+/, modifée pour include les virgules, remettre l'ancienne si ca casse
+        // console.log("targetName", targetName);
         if (targetName && targetName !="none") currentNode.addNeighbor(getOrCreateNode(targetName, 'default'));
     } else if (line.includes('<--')) {
-        const sourceName = line.split('<--')[1]?.trim().split(/\s+/)[0] || null;
-        console.log("sourceName", sourceName);
+        const sourceName = line.split('<--')[1]?.trim().split(/[\s,]+/)[0] || null;
+        // console.log("sourceName", sourceName);
         if (sourceName && sourceName !="none") getOrCreateNode(sourceName, 'default').addNeighbor(currentNode);
     }
 }
@@ -226,13 +273,18 @@ function createNodeWithTopics(nodeName, type, line, isSink = false) {
 function createProcessorNode(nodeName, line) {
     const currentNode = getOrCreateNode(nodeName, getProcessorType(nodeName));
     if (line.includes('stores:')) {
-        extractTopics(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
+        console.log(currentNode)
+        extractStores(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
     }
 }
 
 function getProcessorType(nodeName) {
     if (nodeName.includes("-")) {
-        return "kstream-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+        if(nodeName.toLowerCase().includes("kstream"))
+            return "kstream-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+        if(nodeName.toLowerCase().includes("ktable"))
+            return "ktable-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+    
     }
     return nodeName.toLowerCase();
 }
