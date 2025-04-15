@@ -153,6 +153,32 @@ function extractTopics(line) {
     //ajout des flèches entrte les noeuds
     lines.forEach(line => addConnections(line));
     
+    let currentSubTopology = null;
+
+    lines.forEach(line => {
+        const subTopologyMatch = line.match(/^Sub-topology: (\d+)/);
+        if (subTopologyMatch) {
+            currentSubTopology = parseInt(subTopologyMatch[1], 10);
+        } else if (currentSubTopology !== null) {
+            const nodeMatch = line.match(/^(Source|Processor|Sink): (\S+)/);
+            if (nodeMatch) {
+                const [, , nodeName] = nodeMatch;
+                const node = getOrCreateNode(nodeName, 'default');
+                console.log(nodeName, currentSubTopology)
+                node.setTopology(currentSubTopology);
+            }
+            //try to match a topic
+            const topicMatch = line.match(/topics?: ?(?:\[(\S+)\]|\b(\S+)\b)/);
+            if (topicMatch) {
+                console.log("topicMatch", topicMatch)
+                const topicName = topicMatch[1] || topicMatch[2]; // Match either format
+                console.log("topicName", topicName)
+                const topicNode = getOrCreateNode(topicName, 'topic');
+                topicNode.setTopology(currentSubTopology);
+            }
+        }
+    });
+
     return Array.from(nodeMap.values());
 }
 
