@@ -20,7 +20,6 @@ import {KTable} from "../Node/ParentNode/KTable.js";
 import {GlobalKTable} from "../Node/ParentNode/GlobalKTable.js";
 import {Split} from "../Node/ParentNode/Split.js";
 import {Merge} from "../Node/ParentNode/Merge.js";
-import {None} from "../Node/ParentNode/None.js";
 import {Map as MapNode} from "../Node/ParentNode/Map.js";
 import {Join} from "../Node/ParentNode/Join.js";
 import {FlatMapValues} from '../Node/ParentNode/FlatMapValues.js';
@@ -38,15 +37,23 @@ function getOrCreateNode(name, type) {
         let node;
         switch (type.toLowerCase()) {
             case 'source':
-            case 'sink':
+            case 'sink':           
+            case 'ktable-tostream':
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
+                break;
+            case 'topology':
+                node = new Topology(processedName);
+                console.log("Creation d'un noeud Topology")
                 break;
             case 'kstream-sink':
                 node = new TopicAdvanced(processedName);
                 break;
             case 'topic':
                 node = new TopicAdvanced(processedName);
+                break;
+            case 'sub-topology':
+                node = new SubTopology(processedName);
                 break;
             case 'kstream-filter':
                 node = new Filter(processedName);
@@ -55,24 +62,18 @@ function getOrCreateNode(name, type) {
                 node = new MapValues(processedName);
                 break;
             case 'kstream-key-select':
+            case 'ktable-select':
                 node = new SelectKey(processedName);
                 break;
             case 'kstream-flatmap':
                 node = new FlatMap(processedName);
-            case 'topology':
-                node = new Topology(processedName);
-                console.log("Creation topology");
-                console.log(node.getName(), node.label);
-                break;
-            case 'sub-topology':
-                node = new SubTopology(processedName);
-                console.log("Creation sub-topology");
-                break;
             case 'kstream-groupby':
                 node = new GroupBy(processedName);
                 break;
             case 'kstream-reduce':
             case 'kstream-aggregate':
+            case 'ktable-reduce':
+            case 'ktable-aggregate':
                 node = new ReduceAggregate(processedName);
                 break;
             case 'kstream-count':
@@ -91,7 +92,7 @@ function getOrCreateNode(name, type) {
                 node = new KTable(processedName);
                 break;
             case 'kstream-branch':
-                node = new Split(processName);
+                node = new Split(processedName);
                 break;
             case 'store':
                 node = new StateStore(processedName);
@@ -102,6 +103,7 @@ function getOrCreateNode(name, type) {
             case 'kstream-map':
                 node = new MapNode(processedName);
                 break;
+            case 'kstream-leftjoin':
             case 'kstream-join':
                 node = new Join(processedName);
                 break;
@@ -112,6 +114,7 @@ function getOrCreateNode(name, type) {
                 node = new FlatMapValues(processedName);
                 break;
             case 'kstream-transformvalues':
+            case 'kstream-transform':
                 node = new TransformValues(processedName);
                 break;
             case 'kstream-processvalues':
@@ -120,8 +123,10 @@ function getOrCreateNode(name, type) {
             /*case 'none':
                 node = new None(processedName);
                 break;*/
+            case 'kstream-branchchild':
+                //TODO ?
             default:
-                node = new Node(processedName);
+                node = new Node(processedName,true);
                 console.log(`Warning: Unknown node type '${type}' for ${processedName}`);
         }
         nodeMap.set(processedName, node);
@@ -157,6 +162,38 @@ function extractTopics(line) {
         }
       }
       return topicPart.split(',').map(t => t.trim()).filter(t => t);
+    }
+    
+    return [];
+  }
+  function extractStores(line) {
+    // Format: store: [store1,store2] or stores: [store1,store2]
+    // or: store: store1 or stores: store1
+    if (line.includes('store:') || line.includes('stores:')) {
+      let storePart = '';
+      
+      // Determine if we're dealing with the store: or stores: part
+      const storeIdx = line.indexOf('store:');
+      const storesIdx = line.indexOf('stores:');
+      const startIdx = (storeIdx !== -1) ? storeIdx + 6 : storesIdx + 7;
+      
+      // Extract the topic portion after store: or stores:
+      storePart = line.substring(startIdx).trim();
+      
+      // Handle bracketed format [store1,store2]
+      if (storePart.startsWith('[')) {
+        const endIdx = storePart.indexOf(']');
+        if (endIdx !== -1) {
+          storePart = storePart.substring(1, endIdx);
+        }
+      } else {
+        // Handle non-bracketed format: take until next space or end
+        const spaceIdx = storePart.indexOf(')');
+        if (spaceIdx !== -1) {
+          storePart = storePart.substring(0, spaceIdx);
+        }
+      }
+      return storePart.split(',').map(t => t.trim()).filter(t => t);
     }
     
     return [];

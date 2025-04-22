@@ -23,9 +23,6 @@ export class SubTopology extends Node{
         console.log(elem["type"]);
         if (elem["type"] === "text") {
             elem["baseline"] = elem_temp["baseline"]
-            if(elem["text"] =="sub-0"){
-                console.log("tesssssssssssst 2", elem)
-            }
         }
             
         console.log("aze",this.json)

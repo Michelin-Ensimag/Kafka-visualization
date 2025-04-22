@@ -5,6 +5,10 @@ export class StateStore extends Node{
         super(label);
     }
 
+    isStateStore(){
+        return true;
+    }
+
     getName(){
         return "State Store"
     }

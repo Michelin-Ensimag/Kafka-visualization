@@ -5,14 +5,29 @@ import {v4 as uuidv4} from 'uuid';
 
 export class Node {
 
-    constructor(label) {
+    constructor(label, node = false) {
         this.label = label;
-        this.neighbors = [];
-        this.json = {};
+        this.neighbors = new Array();
+        this.json = null;
         this.leftContainerElement = {}
         this.rightContainerElement = {}
+        this.isFullNode =node;
+        this.topology = 1
     }
 
+    getTopology(){
+        return this.topology;
+    }
+
+    setTopology(number){
+        this.topology = number;
+        
+    }
+
+    isStateStore(){
+        return false;
+    }
+    
     getName(){
         return "Default";
     }
@@ -42,15 +57,11 @@ export class Node {
                 let elem_temp = convertToExcalidrawElements([elem])[0]
                 if (elem["type"] === "text") {
                     elem["baseline"] = elem_temp["baseline"]
-                    if(elem["text"] =="sub-0"){
-                        console.log("tesssssssssssst", elem)
-                    }
                 }
             }
         }
         this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x, y))
         return this.json
-
     }
 
     repositionElements(elements, newX, newY) {
@@ -95,28 +106,34 @@ export class Node {
         let maxY = -Infinity;
 
         // Iterate through this.json to find boundaries
-        this.json.forEach((element) => {
-            if (element.isDeleted || element.type==="text") return; // Skip deleted elements
+        try{
 
-            const xLeft = element.x;
-            const xRight = element.x + element.width;
-            const yTop = element.y;
-            const yBottom = element.y + element.height;
-
-            // Update min/max X and Y
-            minX = Math.min(minX, xLeft);
-            maxX = Math.max(maxX, xRight);
-            minY = Math.min(minY, yTop);
-            maxY = Math.max(maxY, yBottom);
-        });
-        // Calculate middle Y-coordinate
-        const middleY = minY + (maxY - minY) / 2;
-
-        // Return the two points
-        return {
-            leftPoint: { x: minX, y: middleY },
-            rightPoint: { x: maxX, y: middleY }
-        };
+            this.json.forEach((element) => {
+                if (element.isDeleted || element.type==="text") return; // Skip deleted elements
+    
+                const xLeft = element.x;
+                const xRight = element.x + element.width;
+                const yTop = element.y;
+                const yBottom = element.y + element.height;
+    
+                // Update min/max X and Y
+                minX = Math.min(minX, xLeft);
+                maxX = Math.max(maxX, xRight);
+                minY = Math.min(minY, yTop);
+                maxY = Math.max(maxY, yBottom);
+            });
+            // Calculate middle Y-coordinate
+            const middleY = minY + (maxY - minY) / 2;
+    
+            // Return the two points
+            return {
+                leftPoint: { x: minX, y: middleY },
+                rightPoint: { x: maxX, y: middleY }
+            };
+        }
+        catch (error) {
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
+        }
     }
 
 
@@ -218,7 +235,10 @@ export class Node {
     }
 
     getNodeIdForLeftmost() {
+        console.log(this.json)
+        if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
+
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
@@ -243,6 +263,7 @@ export class Node {
     }
 
     getNodeIdForRightmost() {
+        if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
         let elem = this.json;
     
@@ -277,6 +298,19 @@ export class Node {
 
     getLeftContainerElement(){
         return this.leftContainerElement
+    }
+
+    setName(){
+        if(!this.isFullNode) return;
+        for (let i = 0; i < this.json.length; i++) {
+            let elem = this.json[i];
+            //console.log(elem,elem.type)
+            if (elem.type === "text" &&( elem.originalText == "Default" || elem.text == "Default")) {
+                elem.text = this.label;
+                elem.originalText = this.label;
+                elem.width = elem.originalText.length*8;
+            }
+        }
     }
 }
 

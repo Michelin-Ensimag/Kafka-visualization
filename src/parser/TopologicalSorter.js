@@ -1,4 +1,4 @@
-import {StateStore} from "../Node/ParentNode/StateStore.js";
+import { StateStore } from "../Node/ParentNode/StateStore.js";
 
 class TopologicalSorter {
     static topologicalSort(graph) {
@@ -19,15 +19,40 @@ class TopologicalSorter {
             }
         }
 
-        // Find all nodes with zero in-degree
-        for (const [node, degree] of inDegree.entries()) {
-            if (degree === 0) {
-                queue.push(node);
-            }
+        // Get the number of nodes per subtopology number
+        let subtopologyCount = new Map();
+        for (const node of graph) {
+                const subtopology = node.getTopology();
+                if (!subtopologyCount.has(subtopology)) {
+                    subtopologyCount.set(subtopology, 0);
+                }
+                subtopologyCount.set(subtopology, subtopologyCount.get(subtopology) + 1);
         }
 
-        // Find nodes with zero in-degree to start
-        // TopologicalSorter.findZeroInDegreeNodes(inDegree, queue);
+        // initialize a map of nodes to their subtopology numbers that are waiting to be treated
+        let nodesToProcess = new Map();
+        for (const node of graph) {
+                const subtopology = node.getTopology();
+                if (!nodesToProcess.has(subtopology)) {
+                    nodesToProcess.set(subtopology, []);
+                }
+        }
+        
+        // Find all nodes with zero in-degree
+        let lowestSubtopology = Math.min(...Array.from(inDegree.keys()).map(node => node.getTopology()));
+        console.log("lowestSubtopology", lowestSubtopology);
+        for (const [node, degree] of inDegree.entries()) {
+            console.log(degree, node.getTopology(), node.getName());
+            if (degree === 0 && node.getTopology() === lowestSubtopology) {
+                queue.push(node);
+            }
+            else if (degree === 0) {
+                // add the node to the nodesToProcess map
+                if (nodesToProcess.has(node.getTopology())) {
+                    nodesToProcess.get(node.getTopology()).push(node);
+                }
+            }
+        }
 
         // Topological sorting and distance tracking
         let sortedNodes = [];
@@ -38,34 +63,78 @@ class TopologicalSorter {
             distances.set(node, 0);
         }
 
+        let previousSubtopologyMax = 0;
+
         while (queue.length > 0) {
             let current = queue.shift();
-            sortedNodes.push(current);
+            //decrease the number of nodes to process for the subtopology
+            subtopologyCount.set(current.getTopology(), subtopologyCount.get(current.getTopology()) - 1);
 
+            sortedNodes.push(current);
+            distances.set(current, Math.max(distances.get(current), previousSubtopologyMax+1));
             // Process neighbors
             for (let neighbor of current.getNeighbors()) {
                 // Update distance
-                distances.set(neighbor,
-                    Math.max(distances.get(neighbor),
-                        distances.get(current) + 1)
-                );
+                const max = Math.max(distances.get(neighbor), distances.get(current) + 1, previousSubtopologyMax+1);
+                console.log("max", max);
+                distances.set(neighbor, max);
 
                 // Decrement in-degree
                 inDegree.set(neighbor, inDegree.get(neighbor) - 1);
 
                 // If in-degree becomes zero, add to queue
                 if (inDegree.get(neighbor) === 0) {
-                    queue.push(neighbor);
+                    // push only if the same topology
+                    if (neighbor.getTopology() === current.getTopology()) {
+                        queue.push(neighbor);
+                    }
+                    else{
+                        // add the node to the nodesToProcess map
+                        if (nodesToProcess.has(neighbor.getTopology())) {
+                            nodesToProcess.get(neighbor.getTopology()).push(neighbor);
+                        }
+                    }
                 }
+            }
+            console.log("subtopologyCount", subtopologyCount);
+            //if all the nodes of a current subtopology are processed, we can process the nodes of the next subtopology
+            if (subtopologyCount.get(current.getTopology()) === 0 && nodesToProcess.has(current.getTopology()+1)) {
+                // process the nodes of the next subtopology (suppose que la topologie suivante est a l'index +1)
+                previousSubtopologyMax = distances.get(current);
+                console.log("previousSubtopologyMax", previousSubtopologyMax);
+                for (const node of nodesToProcess.get(current.getTopology()+1)) {
+                    queue.push(node);
+                }
+                // clear the nodes to process for the current subtopology
+                nodesToProcess.set(current.getTopology()+1, []);
+            }
+            // si la queue est vide et qu'il y a des noeuds a traiter, on les ajoute a la queue
+            if (queue.length === 0 && nodesToProcess.has(current.getTopology())) {
+            }
+            if (queue.length === 0 && nodesToProcess.has(current.getTopology()+1)) {
+                console.log("queue.length === 0 && nodesToProcess.has(current.getTopology()+1)");
+                for (const node of nodesToProcess.get(current.getTopology()+1)) {
+                    queue.push(node);
+                }
+                nodesToProcess.set(current.getTopology()+1, []);
+            }
+        }
+        //find the node that havent been processed
+        for(let node of graph){
+            if(!sortedNodes.includes(node)){
+                console.log("node not processed", node.getName(),node);
             }
         }
 
         // Check if all nodes were processed (no cycles)
-        if (sortedNodes.length !== inDegree.size) {
-            throw new Error("Graph contains a cycle");
-        }
+        // if (sortedNodes.length !== inDegree.size) {
+        //     throw new Error("Graph contains a cycle");
+        // }
+        console.log("sortedNodes.length", sortedNodes.length, "inDegree.size", inDegree.size);
+        
+        
 
-        //post process to have the StateStore node to be on top of the node it is attach and not at the beginning
+        // Post-process StateStore nodes
         for (const node of graph) {
             if (node instanceof StateStore && inDegree.get(node) === 0) {
                 // StateStore with no previous nodes should match its neighbor's distance
@@ -83,39 +152,6 @@ class TopologicalSorter {
 
         return { sortedNodes, distances };
     }
-
-    // static computeInDegrees(startNode, inDegree) {
-    //     let visited = new Set();
-    //     let queue = [startNode];
-    //
-    //     while (queue.length > 0) {
-    //         let current = queue.shift();
-    //
-    //         if (visited.has(current)) continue;
-    //         visited.add(current);
-    //
-    //         // Initialize in-degree if not already set
-    //         if (!inDegree.has(current)) {
-    //             inDegree.set(current, 0);
-    //         }
-    //
-    //         // Process neighbors
-    //         for (let neighbor of current.getNeighbors()) {
-    //             inDegree.set(neighbor, (inDegree.get(neighbor) || 0) + 1);
-    //
-    //             if (!visited.has(neighbor)) {
-    //                 queue.push(neighbor);
-    //             }
-    //         }
-    //     }
-    // }
-    //
-    // static findZeroInDegreeNodes(inDegree, queue) {
-    //     for (let [node, degree] of inDegree.entries()) {
-    //         if (degree === 0) {
-    //             queue.push(node);
-    //         }
-    //     }
-    // }
 }
+
 export { TopologicalSorter };
