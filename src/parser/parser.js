@@ -94,6 +94,7 @@ function getOrCreateNode(name, type) {
             case 'kstream-map':
                 node = new MapNode(processedName);
                 break;
+            case 'kstream-leftjoin':
             case 'kstream-join':
                 node = new Join(processedName);
                 break;
@@ -218,6 +219,14 @@ function extractTopics(line) {
             if (topicMatch) {
                 console.log("topicMatch", topicMatch)
                 const topicName = topicMatch[1] || topicMatch[2]; // Match either format
+                console.log("topicName", topicName)
+                const topicNode = getOrCreateNode(topicName, 'topic');
+                topicNode.setTopology(currentSubTopology);
+            }
+            const stores = line.match(/stores?: ?(?:\[(\S+)\]|\b(\S+)\b)/);
+            if (stores) {
+                console.log("stores", stores)
+                const topicName = stores[1] || stores[2]; // Match either format
                 console.log("topicName", topicName)
                 const topicNode = getOrCreateNode(topicName, 'topic');
                 topicNode.setTopology(currentSubTopology);
