@@ -8,10 +8,20 @@ export class Node {
     constructor(label, node = false) {
         this.label = label;
         this.neighbors = new Set();
-        this.json = {};
+        this.json = null;
         this.leftContainerElement = {}
         this.rightContainerElement = {}
         this.isFullNode =node;
+        this.topology = 1
+    }
+
+    getTopology(){
+        return this.topology;
+    }
+
+    setTopology(number){
+        this.topology = number;
+        
     }
 
     isStateStore(){
@@ -91,28 +101,34 @@ export class Node {
         let maxY = -Infinity;
 
         // Iterate through this.json to find boundaries
-        this.json.forEach((element) => {
-            if (element.isDeleted || element.type==="text") return; // Skip deleted elements
+        try{
 
-            const xLeft = element.x;
-            const xRight = element.x + element.width;
-            const yTop = element.y;
-            const yBottom = element.y + element.height;
-
-            // Update min/max X and Y
-            minX = Math.min(minX, xLeft);
-            maxX = Math.max(maxX, xRight);
-            minY = Math.min(minY, yTop);
-            maxY = Math.max(maxY, yBottom);
-        });
-        // Calculate middle Y-coordinate
-        const middleY = minY + (maxY - minY) / 2;
-
-        // Return the two points
-        return {
-            leftPoint: { x: minX, y: middleY },
-            rightPoint: { x: maxX, y: middleY }
-        };
+            this.json.forEach((element) => {
+                if (element.isDeleted || element.type==="text") return; // Skip deleted elements
+    
+                const xLeft = element.x;
+                const xRight = element.x + element.width;
+                const yTop = element.y;
+                const yBottom = element.y + element.height;
+    
+                // Update min/max X and Y
+                minX = Math.min(minX, xLeft);
+                maxX = Math.max(maxX, xRight);
+                minY = Math.min(minY, yTop);
+                maxY = Math.max(maxY, yBottom);
+            });
+            // Calculate middle Y-coordinate
+            const middleY = minY + (maxY - minY) / 2;
+    
+            // Return the two points
+            return {
+                leftPoint: { x: minX, y: middleY },
+                rightPoint: { x: maxX, y: middleY }
+            };
+        }
+        catch (error) {
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
+        }
     }
 
 
@@ -214,7 +230,10 @@ export class Node {
     }
 
     getNodeIdForLeftmost() {
+        console.log(this.json)
+        if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
+
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
@@ -239,6 +258,7 @@ export class Node {
     }
 
     getNodeIdForRightmost() {
+        if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
         let elem = this.json;
     
