@@ -42,6 +42,9 @@ export class Node {
                 let elem_temp = convertToExcalidrawElements([elem])[0]
                 if (elem["type"] === "text") {
                     elem["baseline"] = elem_temp["baseline"]
+                    if(elem["text"] =="sub-0"){
+                        console.log("tesssssssssssst", elem)
+                    }
                 }
             }
         }

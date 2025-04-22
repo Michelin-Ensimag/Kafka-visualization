@@ -187,6 +187,7 @@ function processLine(line) {
     else if (line.startsWith("Topologies")) {
         getOrCreateNode("Topology","Topology");
     } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
+        console.log(match[1]);
         getOrCreateNode(match[1],"Sub-topology");
     }
 

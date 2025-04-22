@@ -1,6 +1,7 @@
 import {Node} from "../node"
 import kstdlibJSON from "../../assets/kafka-streams-topology-design.json"
 import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
+import { generateDictionary } from "@/parser/dictionary";
 
 export class SubTopology extends Node{
     constructor(label) {
@@ -13,23 +14,21 @@ export class SubTopology extends Node{
 
 
     generateJson(xtop, ytop,xbottom,ybottom){
-        let dictionary = {};
-        kstdlibJSON["libraryItems"].forEach(item => {
-            dictionary[item["name"]] = item["elements"];
-        });
-        // console.log('generateJson not implemented for this Node', dictionary);
-        for (let cle in dictionary) {
-            for (let key in dictionary[cle]) {
-                let elem = dictionary[cle][key]
-                let elem_temp = convertToExcalidrawElements([elem])[0]
-                if (elem["type"] === "text") {
-                    elem["baseline"] = elem_temp["baseline"]
-                }
+        let dictionary = generateDictionary();
+        
+        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));        
+        
+        let elem = this.json
+        let elem_temp = convertToExcalidrawElements([elem])[0]
+        console.log(elem["type"]);
+        if (elem["type"] === "text") {
+            elem["baseline"] = elem_temp["baseline"]
+            if(elem["text"] =="sub-0"){
+                console.log("tesssssssssssst 2", elem)
             }
         }
-        
-        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));
-        console.log(xbottom-xtop,ybottom-ytop);
+            
+        console.log("aze",this.json)
         return this.json
     }
 
@@ -60,8 +59,14 @@ export class SubTopology extends Node{
             }
                 elem.width= newWidth;
                 elem.height=newHeight;
-        }
         
+            if (elem.type =="text"){
+                elem.text=this.label;
+                elem.originalText=this.label;
+                elem.height =25;
+                elem.width=13.766666412353516;
+            }
+        }
         return newElements;
     }
 }
