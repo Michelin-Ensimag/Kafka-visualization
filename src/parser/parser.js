@@ -36,6 +36,7 @@ function getOrCreateNode(name, type) {
             case 'source':
             case 'sink':           
             case 'ktable-tostream':
+            case 'ktable-source':
             case 'kstream-source':
                 node = new KStreamSourceNode(processedName);
                 break;
