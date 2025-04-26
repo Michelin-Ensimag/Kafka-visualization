@@ -33,7 +33,10 @@ export class Node {
     }
 
     addNeighbor(node) {
-        this.neighbors.push(node);
+        if (!this.neighbors.includes(node)){
+            this.neighbors.push(node);
+        }
+
     }
 
     addSubTopology(node){

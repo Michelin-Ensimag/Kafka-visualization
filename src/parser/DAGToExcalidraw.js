@@ -114,10 +114,10 @@ export function createExcalidrawJSON(graph) {
 
     // Créer les flèches
     for (let node of result.sortedNodes) {
-        if (node.getName()!='Sub-topology'||node.getName!="Topology"){
+        if (node.getName()!='Sub-topology'&&node.getName()!="Topology"){
             for (let neighbor of node.getNeighbors()) {
-                if(neighbor.getName()!='Sub-topology'||neighbor.getName!="Topology"){ 
-                    console.log(neighbor.getName());// Créer une flèche entre les noeuds
+                if(neighbor.getName()!="Sub-topology"&&neighbor.getName()!="Topology"){ 
+                    console.log("Fleche vers", neighbor.getName());// Créer une flèche entre les noeuds
                     let arrowsPointsStart = node.getBoundaryPoints();
                     let arrowsPointsStop = neighbor.getBoundaryPoints();
                     let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
