@@ -35,7 +35,6 @@ export function createExcalidrawJSON(graph) {
     let currentX = baseX;
     let currentSub=null;
     let topologyNode=null
-
     // Placer les noeuds
     console.log("Début dessin");
     for (let distance of sortedDistances) {
@@ -106,6 +105,8 @@ export function createExcalidrawJSON(graph) {
         }
         currentX += maxWidth + horizontalSpacing;
     }
+    // currentSub.generateJson(xtop,ytop,xtop+300,ytop+150);
+    // elements.push(...currentSub.getJson());
 
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology)

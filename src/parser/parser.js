@@ -9,7 +9,6 @@ import {ReduceAggregate} from "../Node/ParentNode/ReduceAggregate.js";
 import {Count} from "../Node/ParentNode/Count.js";
 import {Topology} from "../Node/ParentNode/Topology.js";
 import {SubTopology} from "../Node/ParentNode/SubTopology.js";
-
 import {Peek} from "../Node/ParentNode/Peek.js";
 import {ForEach} from "../Node/ParentNode/ForEach.js";
 import {Process} from "../Node/ParentNode/Process.js";
@@ -203,10 +202,8 @@ function extractTopics(line) {
     const lines = topologyText.split('\n').map(line => line.trim()).filter(line => line);
     nodeMap.clear();
 
-    // ajout des noeuds dans la nodemap
     lines.forEach(line => processLine(line));
 
-    //ajout des flèches entrte les noeuds
     lines.forEach(line => addConnections(line));
     
     return Array.from(nodeMap.values());
