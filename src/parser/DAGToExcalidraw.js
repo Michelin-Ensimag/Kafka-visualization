@@ -108,7 +108,6 @@ export function createExcalidrawJSON(graph) {
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
     elements.push(...currentSub.getJson());
-    console.log("Dessin ST");
 
     // Créer les flèches
     for (let node of result.sortedNodes) {
