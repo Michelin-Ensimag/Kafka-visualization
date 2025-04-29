@@ -139,6 +139,35 @@ export class Node {
         }
     }
 
+    getBottomRightCorner(){
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        // Iterate through this.json to find boundaries
+        try{
+
+            this.json.forEach((element) => {
+                if (element.isDeleted || element.type==="text") return; // Skip deleted elements
+    
+                const xRight = element.x + element.width;
+                const yBottom = element.y + element.height;
+    
+                // Update min/max X and Y
+                maxX = Math.max(maxX, xRight);
+                maxY = Math.max(maxY, yBottom);
+
+            });
+    
+            // Return the two points
+            return {x:maxX,y:maxY};
+        }
+        catch (error) {
+            console.log("erreur");
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
+        }
+
+    }
+
 
     updateElementIds(elements) {
         if (!elements || elements.length === 0) return elements;
