@@ -237,7 +237,7 @@ function addConnections(line) {
         currentNode = getOrCreateNode(match[1], getProcessorType(match[1]));
     } else if ((match = line.match(/^Sink: (\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'sink');
-    } else if (line.startsWith("Topologies")) {
+    } else if (line.startsWith("Topologies")||line.startsWith("Sub-topologies")) {
         console.log("Gerer les liens des T")
         currentTopology=getOrCreateNode("Topology","Topology");
     } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
