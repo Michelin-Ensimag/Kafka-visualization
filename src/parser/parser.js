@@ -247,11 +247,11 @@ function addConnections(line) {
     if (!currentNode) return;
 
     if (line.includes('-->')) {
-        const targetName = line.split('-->')[1]?.trim().split(/\s+/)[0] || null;
+        const targetName = line.split('-->')[1]?.trim().split(/[\s,]+/)[0] || null;
         console.log("targetName", targetName);
         if (targetName && targetName !="none") currentNode.addNeighbor(getOrCreateNode(targetName, 'default'));
     } else if (line.includes('<--')) {
-        const sourceName = line.split('<--')[1]?.trim().split(/\s+/)[0] || null;
+        const sourceName = line.split('<--')[1]?.trim().split(/[\s,]+/)[0] || null;
         console.log("sourceName", sourceName);
         if (sourceName && sourceName !="none") getOrCreateNode(sourceName, 'default').addNeighbor(currentNode);
     } else if ((match = line.match(/^Sub-topology: (\S+)/))){
@@ -271,7 +271,7 @@ function createNodeWithTopics(nodeName, type, line, isSink = false) {
 function createProcessorNode(nodeName, line) {
     const currentNode = getOrCreateNode(nodeName, getProcessorType(nodeName));
     if (line.includes('stores:')) {
-        extractTopics(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
+        extractStores(line).forEach(store => getOrCreateNode(store, 'store').addNeighbor(currentNode));
     }
 }
 
