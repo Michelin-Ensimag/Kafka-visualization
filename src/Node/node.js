@@ -99,7 +99,7 @@ export class Node {
 
     getBoundaryPoints() {
         if (!this.json || this.json.length === 0) {
-            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 }, topPoint: { x: 0, y: 0 }, bottomPoint: { x: 0, y: 0 } };
         }
 
         // Initialize min/max values
@@ -127,15 +127,18 @@ export class Node {
             });
             // Calculate middle Y-coordinate
             const middleY = minY + (maxY - minY) / 2;
+            const middleX = minX + (maxX - minX) / 2;
     
             // Return the two points
             return {
                 leftPoint: { x: minX, y: middleY },
-                rightPoint: { x: maxX, y: middleY }
+                rightPoint: { x: maxX, y: middleY },
+                topPoint: { x: middleX, y: minY },
+                bottomPoint: { x: middleX, y: maxY }
             };
         }
         catch (error) {
-            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 }, topPoint: { x: 0, y: 0 }, bottomPoint: { x: 0, y: 0 } };
         }
     }
 

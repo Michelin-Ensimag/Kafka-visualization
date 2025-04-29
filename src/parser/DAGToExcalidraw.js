@@ -24,17 +24,17 @@ export function createExcalidrawJSON(graph) {
     let baseY = 50;
     let horizontalSpacing = 80;
     let verticalSpacing = 100;
-    let xtop=-Infinity;
-    let ytop=-Infinity;
-    let xbottom=Infinity;
-    let ybottom=Infinity;
-    let xtopTopology=-Infinity;
-    let ytopTopology=-Infinity;
-    let xbottomTopology=Infinity;
-    let ybottomTopology=Infinity;
+    let xtop = -Infinity;
+    let ytop = -Infinity;
+    let xbottom = Infinity;
+    let ybottom = Infinity;
+    let xtopTopology = -Infinity;
+    let ytopTopology = -Infinity;
+    let xbottomTopology = Infinity;
+    let ybottomTopology = Infinity;
     let currentX = baseX;
-    let currentSub=null;
-    let topologyNode=null
+    let currentSub = null;
+    let topologyNode = null
     // Placer les noeuds
     console.log("Début dessin");
     for (let distance of sortedDistances) {
@@ -42,101 +42,108 @@ export function createExcalidrawJSON(graph) {
         let nodesAtDistance = nodesByDistance.get(distance);
 
         // Pour centrer verticalement quand il y a plusieurs noeuds, cependant, petit changement dans le cas des noeud (Sub)Topology, que l'on ne compte pas
-        let totalHeight=-1;
-        for (let i=0;i< nodesAtDistance.length;i++){
-            let current=nodesAtDistance[i];
-            if ((current.getName()!='Topology'&&current.getName()!='Sub-topology')){
-                totalHeight+=1;
+        let totalHeight = -1;
+        for (let i = 0; i < nodesAtDistance.length; i++) {
+            let current = nodesAtDistance[i];
+            if ((current.getName() != 'Topology' && current.getName() != 'Sub-topology')) {
+                totalHeight += 1;
             }
         }
         totalHeight = totalHeight * verticalSpacing;
         let startY = baseY - totalHeight / 2;
-        let verticalOffset=0
+        let verticalOffset = 0
         let maxWidth = 0;
         for (let i = 0; i < nodesAtDistance.length; i++) {
 
             let current = nodesAtDistance[i];
-            if(current.getName()=="Sub-topology"){
-                if(currentSub==null){
-                    currentSub=current;
+            if (current.getName() == "Sub-topology") {
+                if (currentSub == null) {
+                    currentSub = current;
                 }
-                else{
-                    currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+                else {
+                    currentSub.generateJson(xtop, ytop, xbottom, ybottom);
                     elements.push(...currentSub.getJson());
                     console.log("Dessin ST", xtop, ytop, xbottom, ybottom);
-                    xtop=-Infinity;
-                    ytop=-Infinity;
-                    xbottom=Infinity;
-                    ybottom=Infinity;
-                    currentSub=current;
+                    xtop = -Infinity;
+                    ytop = -Infinity;
+                    xbottom = Infinity;
+                    ybottom = Infinity;
+                    currentSub = current;
                 }
-                verticalOffset+=1
+                verticalOffset += 1
             }
-            else if (current.getName()=="Topology"){
-                topologyNode=current;
-                verticalOffset+=1
+            else if (current.getName() == "Topology") {
+                topologyNode = current;
+                verticalOffset += 1
             }
-            else{      
+            else {
                 let x = currentX;
-                let y = startY + (i-(verticalOffset)) * verticalSpacing;
+                let y = startY + (i - (verticalOffset)) * verticalSpacing;
                 //Maj des boundaries de la sub-topology
                 current.generateJson(x, y);
-                let point= current.getBottomRightCorner();
-                if(current!=null&&(current.getName()!='Topic Advanced'&&current.getName()!='State Store')){
-                    xtop=(xtop==-Infinity ?  x: Math.min(x-10,xtop));
-                    ytop=(ytop==-Infinity ?  y: Math.min(y-10,ytop));
-                    xbottom=(xbottom==Infinity ?  x: Math.max(point.x,xbottom));
-                    ybottom=(ybottom==Infinity ?  y: Math.max(point.y,ybottom));
+                let point = current.getBottomRightCorner();
+                if (current != null && (current.getName() != 'Topic Advanced' && current.getName() != 'State Store')) {
+                    xtop = (xtop == -Infinity ? x : Math.min(x - 10, xtop));
+                    ytop = (ytop == -Infinity ? y : Math.min(y - 10, ytop));
+                    xbottom = (xbottom == Infinity ? x : Math.max(point.x, xbottom));
+                    ybottom = (ybottom == Infinity ? y : Math.max(point.y, ybottom));
                 }
 
-                if (current!=null&&(current.getName()!='Topology'&&current.getName()!='Sub-topology')){
-                    xtopTopology=(xtopTopology==-Infinity ?  x: Math.min(x-50,xtopTopology));
-                    ytopTopology=(ytopTopology==-Infinity ?  y: Math.min(y-50,ytopTopology));
-                    xbottomTopology=(xbottomTopology==Infinity ?  x: Math.max(point.x,xbottomTopology));
-                    ybottomTopology=(ybottomTopology==Infinity ?  y: Math.max(point.y,ybottomTopology));
+                if (current != null && (current.getName() != 'Topology' && current.getName() != 'Sub-topology')) {
+                    xtopTopology = (xtopTopology == -Infinity ? x : Math.min(x - 50, xtopTopology));
+                    ytopTopology = (ytopTopology == -Infinity ? y : Math.min(y - 50, ytopTopology));
+                    xbottomTopology = (xbottomTopology == Infinity ? x : Math.max(point.x, xbottomTopology));
+                    ybottomTopology = (ybottomTopology == Infinity ? y : Math.max(point.y, ybottomTopology));
                 }
-                console.log("Dessin pas une ST",x,y);
-                console.log ("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
-                maxWidth = Math.max(maxWidth, current.getElementsWidth());}
-                current.setName();
+                console.log("Dessin pas une ST", x, y);
+                console.log("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
+                maxWidth = Math.max(maxWidth, current.getElementsWidth());
+            }
+            current.setName();
         }
         currentX += maxWidth + horizontalSpacing;
     }
     // currentSub.generateJson(xtop,ytop,xtop+300,ytop+150);
     // elements.push(...currentSub.getJson());
 
-    currentSub.generateJson(xtop,ytop,xbottom,ybottom);
+    currentSub.generateJson(xtop, ytop, xbottom, ybottom);
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
     elements.push(...currentSub.getJson());
 
     // Créer les flèches
     for (let node of result.sortedNodes) {
-        if (node.getName()!='Sub-topology'&&node.getName()!="Topology"){
+        if (node.getName() != 'Sub-topology' && node.getName() != "Topology") {
             for (let neighbor of node.getNeighbors()) {
-                if(neighbor.getName()!="Sub-topology"&&neighbor.getName()!="Topology"){ 
-                    console.log("Fleche vers", neighbor.getName());// Créer une flèche entre les noeuds
+                if (neighbor.getName() != "Sub-topology" && neighbor.getName() != "Topology") {
+                    let arrowElement;
                     let arrowsPointsStart = node.getBoundaryPoints();
                     let arrowsPointsStop = neighbor.getBoundaryPoints();
-                    let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
-                    let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
-                    
-                    //console.log("test id")
-                    //console.log(node.getNodeIdForArrow())
-                    //console.log(neighbor.getNodeIdForArrow())
-                    let arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForLeftmost(), neighbor.getNodeIdForRightmost());
-        
-                    // Ajouter la flèche aux boundElements des noeuds
-                    // addBoundedElement(node.getContainerElement(), arrowElement);
-                    // addBoundedElement(neighbor.getContainerElement(), arrowElement);
-                    // Ajouter la flèche aux éléments
-                    elements.push(arrowElement);}
+                    if (node.isStateStore() || neighbor.isStateStore()) {
+                        let start = arrowsPointsStart.bottomPoint; // Point de départ (middle right du rectangle)
+                        let end = arrowsPointsStop.topPoint; // Point d'arrivée (middle left du rectangle)
+
+                        arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForLeftmost(), neighbor.getNodeIdForRightmost(), true);
+                    }
+                    else {
+                        let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
+                        let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
+
+                        arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForLeftmost(), neighbor.getNodeIdForRightmost());
+
+                        // Ajouter la flèche aux boundElements des noeuds
+                        // addBoundedElement(node.getContainerElement(), arrowElement);
+                        // addBoundedElement(neighbor.getContainerElement(), arrowElement);
+                        // Ajouter la flèche aux éléments
+                    }
+                    elements.push(arrowElement);
+                }
             }
         }
     }
 
     for (let node of result.sortedNodes) {
-            elements.push(...node.getJson());
-        
+        elements.push(...node.getJson());
+
     }
     return elements;
 }
