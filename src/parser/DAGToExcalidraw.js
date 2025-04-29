@@ -98,7 +98,7 @@ export function createExcalidrawJSON(graph) {
                 console.log("Dessin pas une ST",x,y);
                 console.log ("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
                 maxWidth = Math.max(maxWidth, current.getElementsWidth());}
-
+                current.setName();
         }
         currentX += maxWidth + horizontalSpacing;
     }
@@ -106,7 +106,7 @@ export function createExcalidrawJSON(graph) {
     // elements.push(...currentSub.getJson());
 
     currentSub.generateJson(xtop,ytop,xbottom,ybottom);
-    topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology)
+    topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
     elements.push(...currentSub.getJson());
     console.log("Dessin ST");
 
