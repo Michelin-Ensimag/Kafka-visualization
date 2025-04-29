@@ -20,12 +20,9 @@ export class SubTopology extends Node{
         
         let elem = this.json
         let elem_temp = convertToExcalidrawElements([elem])[0]
-        console.log(elem["type"]);
         if (elem["type"] === "text") {
             elem["baseline"] = elem_temp["baseline"]
         }
-            
-        console.log("aze",this.json)
         return this.json
     }
 

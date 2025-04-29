@@ -36,7 +36,6 @@ export function createExcalidrawJSON(graph) {
     let currentSub = null;
     let topologyNode = null
     // Placer les noeuds
-    console.log("Début dessin");
     for (let distance of sortedDistances) {
 
         let nodesAtDistance = nodesByDistance.get(distance);
@@ -63,7 +62,6 @@ export function createExcalidrawJSON(graph) {
                 else {
                     currentSub.generateJson(xtop, ytop, xbottom, ybottom);
                     elements.push(...currentSub.getJson());
-                    console.log("Dessin ST", xtop, ytop, xbottom, ybottom);
                     xtop = -Infinity;
                     ytop = -Infinity;
                     xbottom = Infinity;
@@ -95,8 +93,6 @@ export function createExcalidrawJSON(graph) {
                     xbottomTopology = (xbottomTopology == Infinity ? x : Math.max(point.x, xbottomTopology));
                     ybottomTopology = (ybottomTopology == Infinity ? y : Math.max(point.y, ybottomTopology));
                 }
-                console.log("Dessin pas une ST", x, y);
-                console.log("Nouvelles coordonnées", xtop, ytop, xbottom, ybottom);
                 maxWidth = Math.max(maxWidth, current.getElementsWidth());
             }
             current.setName();

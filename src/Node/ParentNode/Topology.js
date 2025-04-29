@@ -17,7 +17,6 @@ export class Topology extends Node{
         kstdlibJSON["libraryItems"].forEach(item => {
             dictionary[item["name"]] = item["elements"];
         });
-        // console.log('generateJson not implemented for this Node', dictionary);
         for (let cle in dictionary) {
             for (let key in dictionary[cle]) {
                 let elem = dictionary[cle][key]
@@ -32,15 +31,11 @@ export class Topology extends Node{
             let elem = this.json[i];
 
             if (elem.type === "text" ) {
-                console.log("Modification d'un texte d'un ST en: ", this.label, "Coordonnées: ", elem.x,elem.y);
                 elem.text = this.label;
                 elem.originalText = this.label;
-                // let old_width = elem.width;
                 elem.width = elem.originalText.length*8;
-                // elem.x = elem.x-elem.width/2 + old_width/2;
             }
         }
-        console.log(xbottom-xtop,ybottom-ytop);
         return this.json
     }
 

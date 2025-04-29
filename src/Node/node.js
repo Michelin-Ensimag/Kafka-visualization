@@ -270,7 +270,6 @@ export class Node {
     }
 
     getNodeIdForLeftmost() {
-        console.log(this.json)
         if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
 
@@ -339,7 +338,6 @@ export class Node {
         if(!this.isFullNode) return;
         for (let i = 0; i < this.json.length; i++) {
             let elem = this.json[i];
-            //console.log(elem,elem.type)
             if (elem.type === "text" &&( elem.originalText == "Default" || elem.text == "Default")) {
                 elem.text = this.label;
                 elem.originalText = this.label;
