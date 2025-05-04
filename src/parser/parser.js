@@ -270,7 +270,7 @@ function createProcessorNode(nodeName, line) {
 
 function getProcessorType(nodeName) {
     if (nodeName.includes("-")) {
-        return "kstream-" + nodeName.split('-').slice(1, -1).join('-').toLowerCase();
+        return nodeName.split('-').slice(0, -1).join('-').toLowerCase();
     }
     return nodeName.toLowerCase();
 }
