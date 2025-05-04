@@ -322,8 +322,56 @@ export class Node {
         return rightmostShape.id;
     }
 
-    getContainerElement(){
-        return this.containerElement
+    getNodeIdForBottomMost() {
+        if(!this.json || this.json.length === 0) return null;
+        // Assuming `this.json` contains the array of elements
+        let elem = this.json;
+    
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.leftContainerElement = null; // If no shapes are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the rightmost point (largest y + height)
+        let bottomMostShape = shapes.reduce((bShape, currentShape) => {
+            // Compare the rightmost point of each shape (y + height)
+            return (currentShape.y + currentShape.height) > (bShape.y + bShape.height) ? currentShape : bShape;
+        });
+    
+        // Set this.containerElement to the rightmost shape element
+        this.leftContainerElement = bottomMostShape;
+    
+        // Return the ID of the rightmost shape
+        return bottomMostShape.id;
+    }
+
+    getNodeIdForTopMost() {
+        if(!this.json || this.json.length === 0) return null;
+        // Assuming `this.json` contains the array of elements
+        let elem = this.json;
+    
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.leftContainerElement = null; // If no shapes are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the rightmost point (largest x + width)
+        let topmostShape = shapes.reduce((tShape, currentShape) => {
+            // Compare the rightmost point of each shape (x + width)
+            return currentShape.y < tShape.y ? currentShape : tShape;
+        });
+    
+        // Set this.containerElement to the rightmost shape element
+        this.rightContainerElement = topmostShape;
+    
+        // Return the ID of the rightmost shape
+        return topmostShape.id;
     }
 
     getRigthContainerElement(){
