@@ -3,6 +3,7 @@ import { ArrowGenerator } from "./ArrowGenerator.js";
 import { node } from 'globals';
 
 export function createExcalidrawJSON(graph) {
+    let start=Date.now();
     let elements = [];
     const result = TopologicalSorter.topologicalSort(graph);
 
@@ -102,6 +103,8 @@ export function createExcalidrawJSON(graph) {
     currentSub.generateJson(xtop, ytop, xbottom, ybottom);
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
 
+
+    console.log("Temps de génération avant les flèches", Date.now()-start);
     // Créer les flèches
     
     for (let node of result.sortedNodes) {
@@ -149,6 +152,7 @@ export function createExcalidrawJSON(graph) {
         }
         
     }
+    console.log("Temps de génération:", Date.now()-start);
     return elements;
 }
 

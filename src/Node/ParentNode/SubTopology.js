@@ -15,13 +15,14 @@ export class SubTopology extends Node{
 
     generateJson(xtop, ytop,xbottom,ybottom){
         let dictionary = generateDictionary();
-        
+        let start=Date.now();
         this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));        
         
         let elem = this.json
         if (elem["type"] === "text") {
             elem["baseline"] = elem_temp["baseline"]
         }
+        console.log(Date.now()-start);
         return this.json
     }
 
@@ -56,7 +57,6 @@ export class SubTopology extends Node{
             if (elem.type =="text"){
                 elem.text=this.label;
                 elem.originalText=this.label;
-                console.log(elem.text, elem.originalText,this.label);
                 elem.height =25;
                 elem.width=70;
             }

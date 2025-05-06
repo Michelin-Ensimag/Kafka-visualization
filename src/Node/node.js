@@ -53,17 +53,17 @@ export class Node {
     }
 
     generateJson(x, y) {
+        let start=Date.now();
         let dictionary = generateDictionary();
-        for (let cle in dictionary) {
-            for (let key in dictionary[cle]) {
-                let elem = dictionary[cle][key]
-                let elem_temp = convertToExcalidrawElements([elem])[0]
-                if (elem["type"] === "text") {
-                    elem["baseline"] = elem_temp["baseline"]
-                }
-            }
+                
+        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x,y));        
+        
+        let elem = this.json
+        if (elem["type"] === "text") {
+            let elem_temp = convertToExcalidrawElements([elem])[0]
+            elem["baseline"] = elem_temp["baseline"]
         }
-        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x, y))
+        console.log(Date.now()-start);
         return this.json
     }
 
