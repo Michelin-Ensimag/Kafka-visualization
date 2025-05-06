@@ -3,7 +3,6 @@ import { ArrowGenerator } from "./ArrowGenerator.js";
 import { node } from 'globals';
 
 export function createExcalidrawJSON(graph) {
-    let start=Date.now();
     let elements = [];
     const result = TopologicalSorter.topologicalSort(graph);
 
@@ -20,19 +19,25 @@ export function createExcalidrawJSON(graph) {
     // Trier les distances
     let sortedDistances = Array.from(nodesByDistance.keys()).sort((a, b) => a - b);
 
-    // Paramètres de placement
+    // Paramètres de placement pour les noeuds
     let baseX = 50;
     let baseY = 50;
     let horizontalSpacing = 80;
     let verticalSpacing = 100;
+
+    //Coordonnées pour les sub-topologies
     let xtop = -Infinity;
     let ytop = -Infinity;
     let xbottom = Infinity;
     let ybottom = Infinity;
+
+    //Coordonnées pour la topology
     let xtopTopology = -Infinity;
     let ytopTopology = -Infinity;
     let xbottomTopology = Infinity;
     let ybottomTopology = Infinity;
+
+    //Variables utilisées actuellement lors du passage en boucle
     let currentX = baseX;
     let currentSub = null;
     let topologyNode = null
@@ -80,6 +85,8 @@ export function createExcalidrawJSON(graph) {
                 //Maj des boundaries de la sub-topology
                 current.generateJson(x, y);
                 let point = current.getBottomRightCorner();
+
+                //Maj coordonnées sub-topology
                 if (current != null && (current.getName() != 'Topic Advanced' && current.getName() != 'State Store')) {
                     xtop = (xtop == -Infinity ? x-10 : Math.min(x - 10, xtop));
                     ytop = (ytop == -Infinity ? y-10 : Math.min(y - 10, ytop));
@@ -87,6 +94,7 @@ export function createExcalidrawJSON(graph) {
                     ybottom = (ybottom == Infinity ? y+10 : Math.max(point.y+10, ybottom));
                 }
 
+                //Maj coordonéées topology
                 if (current != null && (current.getName() != 'Topology' && current.getName() != 'Sub-topology')) {
                     xtopTopology = (xtopTopology == -Infinity ? x-30 : Math.min(x - 30, xtopTopology));
                     ytopTopology = (ytopTopology == -Infinity ? y-30 : Math.min(y - 30, ytopTopology));
@@ -104,7 +112,6 @@ export function createExcalidrawJSON(graph) {
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
 
 
-    console.log("Temps de génération avant les flèches", Date.now()-start);
     // Créer les flèches
     
     for (let node of result.sortedNodes) {
@@ -152,7 +159,6 @@ export function createExcalidrawJSON(graph) {
         }
         
     }
-    console.log("Temps de génération:", Date.now()-start);
     return elements;
 }
 

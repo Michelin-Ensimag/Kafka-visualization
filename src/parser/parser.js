@@ -208,7 +208,6 @@ function extractTopics(line) {
   }
 
   export function convertTopoToGraph(topologyText) {
-    let start=Date.now();
     const lines = topologyText.split('\n').map(line => line.trim()).filter(line => line);
     nodeMap.clear();
 
@@ -216,8 +215,6 @@ function extractTopics(line) {
 
     lines.forEach(line => addConnections(line));
     
-
-    console.log("Temps de parsing", Date.now()-start);
     return Array.from(nodeMap.values());
 }
 

@@ -36,6 +36,7 @@ const App = () => {
 
   const onSubmit = (event) => {
     event.preventDefault();
+    let start=Date.now();
     let topos = convertTopoToGraph(text);
     let elements = createExcalidrawJSON(topos)
     let sceneData = {
@@ -47,6 +48,7 @@ const App = () => {
     };
     excalidrawAPI.resetScene();
     excalidrawAPI.updateScene(sceneData);
+    console.log(Date.now()-start);
   };
 
   let firstClick = true;

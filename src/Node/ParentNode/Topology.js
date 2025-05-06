@@ -92,7 +92,6 @@ export class Topology extends Node{
     }
 
     generateJson(xtop, ytop,xbottom,ybottom){
-        let start=Date.now();
         let dictionary = generateDictionary();
                 
         this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));        
@@ -101,8 +100,6 @@ export class Topology extends Node{
         if (elem["type"] === "text") {
             elem["baseline"] = elem_temp["baseline"]
         }
-        console.log(Date.now()-start);
-        console.log(this.json)
         return this.json
             }
 

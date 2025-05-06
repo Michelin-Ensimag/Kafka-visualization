@@ -53,7 +53,6 @@ export class Node {
     }
 
     generateJson(x, y) {
-        let start=Date.now();
         let dictionary = generateDictionary();
                 
         this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x,y));        
@@ -63,7 +62,6 @@ export class Node {
             let elem_temp = convertToExcalidrawElements([elem])[0]
             elem["baseline"] = elem_temp["baseline"]
         }
-        console.log(Date.now()-start);
         return this.json
     }
 
