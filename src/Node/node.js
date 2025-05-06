@@ -54,16 +54,14 @@ export class Node {
 
     generateJson(x, y) {
         let dictionary = generateDictionary();
-        for (let cle in dictionary) {
-            for (let key in dictionary[cle]) {
-                let elem = dictionary[cle][key]
-                let elem_temp = convertToExcalidrawElements([elem])[0]
-                if (elem["type"] === "text") {
-                    elem["baseline"] = elem_temp["baseline"]
-                }
-            }
+                
+        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x,y));        
+        
+        let elem = this.json
+        if (elem["type"] === "text") {
+            let elem_temp = convertToExcalidrawElements([elem])[0]
+            elem["baseline"] = elem_temp["baseline"]
         }
-        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], x, y))
         return this.json
     }
 
@@ -330,7 +328,7 @@ export class Node {
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
-        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle' || e.type === "text"); // Adjust 'rect' if needed
     
         if (shapes.length === 0) {
             this.leftContainerElement = null; // If no shapes are found, set containerElement to null

@@ -19,7 +19,6 @@ export class SubTopology extends Node{
         this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));        
         
         let elem = this.json
-        let elem_temp = convertToExcalidrawElements([elem])[0]
         if (elem["type"] === "text") {
             elem["baseline"] = elem_temp["baseline"]
         }
@@ -57,7 +56,7 @@ export class SubTopology extends Node{
             if (elem.type =="text"){
                 elem.text=this.label;
                 elem.originalText=this.label;
-                console.log(elem.text, elem.originalText,this.label);
+
                 elem.height =25;
                 elem.width=70;
             }

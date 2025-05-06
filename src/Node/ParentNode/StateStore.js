@@ -22,7 +22,7 @@ export class StateStore extends Node{
                 elem.text = this.label;
                 elem.originalText = this.label;
                 let old_width = elem.width;
-                elem.width = elem.originalText.length*13;
+                elem.width = elem.originalText.length*10.5;
                 elem.x = elem.x-elem.width/2 + old_width/2;
             }
         }

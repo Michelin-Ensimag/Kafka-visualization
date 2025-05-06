@@ -32,6 +32,7 @@ export function processName(n) {
 
 function getOrCreateNode(name, type) {
     const processedName = processName(name);
+    // console.log(name, type, processedName);
     if (!nodeMap.has(processedName)) {
         let node;
         switch (type.toLowerCase()) {
@@ -52,7 +53,7 @@ function getOrCreateNode(name, type) {
                 node = new TopicAdvanced(processedName);
                 break;
             case 'sub-topology':
-                console.log(processedName);
+                // console.log(processedName);
                 node = new SubTopology(processedName);
                 break;
             case 'kstream-filter':
@@ -196,9 +197,9 @@ function extractTopics(line) {
         const limitIdx = t.indexOf('STATE'); // Find the position of State
         if (limitIdx !== -1) {
             // get te substring plus the last number
-            t = t.substring(0, limitIdx) + t.substring(limitIdx + 20).trim(); 
+            t = t.substring(0, limitIdx) + '(' + t.substring(limitIdx + 20).trim() + ')'; 
         }
-        console.log("store",t);
+        // console.log("store",t);
         return t;
     }).filter(t => t);
     }
@@ -219,16 +220,16 @@ function extractTopics(line) {
 
 function processLine(line) {
     let match;
-    if ((match = line.match(/^Source: (\S+)/))) {
+    // console.log(line);
+    if ((match = line.match(/^Source:\s+(\S+)/))) {
         createNodeWithTopics(match[1], 'source', line);
-    } else if ((match = line.match(/^Processor: (\S+)/))) {
+    } else if ((match = line.match(/^Processor:\s+(\S+)/))) {
         createProcessorNode(match[1], line);
-    } else if ((match = line.match(/^Sink: (\S+)/))) {
+    } else if ((match = line.match(/^Sink:\s+(\S+)/))) {
         createNodeWithTopics(match[1], 'sink', line, true);
-    }
-    else if (line.startsWith("Topologies")||line.startsWith("Sub-topologies")) {
+    } else if (line.startsWith("Topologies")||line.startsWith("Sub-topologies")) {
         getOrCreateNode("Topology","Topology");
-    } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
+    } else if ((match = line.match(/^Sub-topology:\s+(\S+)/))) {
         getOrCreateNode("sub-"+match[1],"Sub-topology");
     }
 
@@ -237,15 +238,15 @@ function processLine(line) {
 
 let match, currentNode,currentSub, currentTopology;
 function addConnections(line) {
-    if ((match = line.match(/^Source: (\S+)/))) {
+    if ((match = line.match(/^Source:\s+(\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'source');
-    } else if ((match = line.match(/^Processor: (\S+)/))) {
+    } else if ((match = line.match(/^Processor:\s+(\S+)/))) {
         currentNode = getOrCreateNode(match[1], getProcessorType(match[1]));
-    } else if ((match = line.match(/^Sink: (\S+)/))) {
+    } else if ((match = line.match(/^Sink:\s+(\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'sink');
     } else if (line.startsWith("Topologies")||line.startsWith("Sub-topologies")) {
         currentTopology=getOrCreateNode("Topology","Topology");
-    } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
+    } else if ((match = line.match(/^Sub-topology:\s+(\S+)/))) {
         currentSub=getOrCreateNode("sub-"+match[1],"Sub-topology");
     }
     
@@ -257,7 +258,7 @@ function addConnections(line) {
     } else if (line.includes('<--')) {
         const sourceName = line.split('<--')[1]?.trim().split(/[\s,]+/)[0] || null;
         if (sourceName && sourceName !="none") getOrCreateNode(sourceName, 'default').addNeighbor(currentNode);
-    } else if ((match = line.match(/^Sub-topology: (\S+)/))){
+    } else if ((match = line.match(/^Sub-topology:\s+(\S+)/))){
         currentNode.addSubTopology(currentSub);
         currentNode=currentSub;
     }
