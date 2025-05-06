@@ -103,6 +103,13 @@ export function createExcalidrawJSON(graph) {
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
 
     // Créer les flèches
+    
+    for (let node of result.sortedNodes) {
+        if ((node.getName() == 'Topology' || node.getName() == 'Sub-topology')) {
+            elements.push(...node.getJson());
+        }
+        
+    }
     for (let node of result.sortedNodes) {
         if (node.getName() != 'Sub-topology' && node.getName() != "Topology") {
             for (let neighbor of node.getNeighbors()) {
@@ -136,10 +143,11 @@ export function createExcalidrawJSON(graph) {
             }
         }
     }
-
     for (let node of result.sortedNodes) {
-        elements.push(...node.getJson());
-
+        if ((node.getName() != 'Topology' && node.getName() != 'Sub-topology')) {
+            elements.push(...node.getJson());
+        }
+        
     }
     return elements;
 }

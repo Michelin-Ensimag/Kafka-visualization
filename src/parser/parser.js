@@ -192,7 +192,16 @@ function extractTopics(line) {
           storePart = storePart.substring(0, spaceIdx);
         }
       }
-      return storePart.split(',').map(t => t.trim()).filter(t => t);
+      return storePart.split(',').map(t => {
+        t = t.trim();
+        const limitIdx = t.indexOf('STATE'); // Find the position of State
+        if (limitIdx !== -1) {
+            // get te substring plus the last number
+            t = t.substring(0, limitIdx) + t.substring(limitIdx + 20).trim(); 
+        }
+        console.log("store",t);
+        return t;
+    }).filter(t => t);
     }
     
     return [];
