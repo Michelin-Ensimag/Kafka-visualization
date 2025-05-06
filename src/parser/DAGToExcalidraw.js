@@ -61,7 +61,6 @@ export function createExcalidrawJSON(graph) {
                 }
                 else {
                     currentSub.generateJson(xtop, ytop, xbottom, ybottom);
-                    elements.push(...currentSub.getJson());
                     xtop = -Infinity;
                     ytop = -Infinity;
                     xbottom = Infinity;
@@ -81,17 +80,17 @@ export function createExcalidrawJSON(graph) {
                 current.generateJson(x, y);
                 let point = current.getBottomRightCorner();
                 if (current != null && (current.getName() != 'Topic Advanced' && current.getName() != 'State Store')) {
-                    xtop = (xtop == -Infinity ? x : Math.min(x - 10, xtop));
-                    ytop = (ytop == -Infinity ? y : Math.min(y - 10, ytop));
-                    xbottom = (xbottom == Infinity ? x : Math.max(point.x, xbottom));
-                    ybottom = (ybottom == Infinity ? y : Math.max(point.y, ybottom));
+                    xtop = (xtop == -Infinity ? x-10 : Math.min(x - 10, xtop));
+                    ytop = (ytop == -Infinity ? y-10 : Math.min(y - 10, ytop));
+                    xbottom = (xbottom == Infinity ? x+10 : Math.max(point.x+10, xbottom));
+                    ybottom = (ybottom == Infinity ? y+10 : Math.max(point.y+10, ybottom));
                 }
 
                 if (current != null && (current.getName() != 'Topology' && current.getName() != 'Sub-topology')) {
-                    xtopTopology = (xtopTopology == -Infinity ? x : Math.min(x - 50, xtopTopology));
-                    ytopTopology = (ytopTopology == -Infinity ? y : Math.min(y - 50, ytopTopology));
-                    xbottomTopology = (xbottomTopology == Infinity ? x : Math.max(point.x, xbottomTopology));
-                    ybottomTopology = (ybottomTopology == Infinity ? y : Math.max(point.y, ybottomTopology));
+                    xtopTopology = (xtopTopology == -Infinity ? x-30 : Math.min(x - 30, xtopTopology));
+                    ytopTopology = (ytopTopology == -Infinity ? y-30 : Math.min(y - 30, ytopTopology));
+                    xbottomTopology = (xbottomTopology == Infinity ? x+30 : Math.max(point.x+30, xbottomTopology));
+                    ybottomTopology = (ybottomTopology == Infinity ? y+30 : Math.max(point.y+30, ybottomTopology));
                 }
                 maxWidth = Math.max(maxWidth, current.getElementsWidth());
             }
@@ -102,7 +101,6 @@ export function createExcalidrawJSON(graph) {
 
     currentSub.generateJson(xtop, ytop, xbottom, ybottom);
     topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
-    elements.push(...currentSub.getJson());
 
     // Créer les flèches
     for (let node of result.sortedNodes) {

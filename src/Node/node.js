@@ -150,7 +150,7 @@ export class Node {
         try{
 
             this.json.forEach((element) => {
-                if (element.isDeleted || element.type==="text") return; // Skip deleted elements
+                if (element.isDeleted) return; // Skip deleted elements
     
                 const xRight = element.x + element.width;
                 const yBottom = element.y + element.height;

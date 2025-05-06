@@ -57,8 +57,9 @@ export class SubTopology extends Node{
             if (elem.type =="text"){
                 elem.text=this.label;
                 elem.originalText=this.label;
+                console.log(elem.text, elem.originalText,this.label);
                 elem.height =25;
-                elem.width=13.766666412353516;
+                elem.width=70;
             }
         }
         return newElements;

@@ -51,6 +51,7 @@ function getOrCreateNode(name, type) {
                 node = new TopicAdvanced(processedName);
                 break;
             case 'sub-topology':
+                console.log(processedName);
                 node = new SubTopology(processedName);
                 break;
             case 'kstream-filter':
@@ -215,17 +216,16 @@ function processLine(line) {
     } else if ((match = line.match(/^Sink: (\S+)/))) {
         createNodeWithTopics(match[1], 'sink', line, true);
     }
-    else if (line.startsWith("Topologies")) {
+    else if (line.startsWith("Topologies")||line.startsWith("Sub-topologies")) {
         getOrCreateNode("Topology","Topology");
     } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
-        getOrCreateNode(match[1],"Sub-topology");
+        getOrCreateNode("sub-"+match[1],"Sub-topology");
     }
 
 
 }
 
 let match, currentNode,currentSub, currentTopology;
-let firstST=true;
 function addConnections(line) {
     if ((match = line.match(/^Source: (\S+)/))) {
         currentNode = getOrCreateNode(match[1], 'source');
@@ -236,7 +236,7 @@ function addConnections(line) {
     } else if (line.startsWith("Topologies")||line.startsWith("Sub-topologies")) {
         currentTopology=getOrCreateNode("Topology","Topology");
     } else if ((match = line.match(/^Sub-topology: (\S+)/))) {
-        currentSub=getOrCreateNode(match[1],"Sub-topology");
+        currentSub=getOrCreateNode("sub-"+match[1],"Sub-topology");
     }
     
     if (!currentNode) return;
