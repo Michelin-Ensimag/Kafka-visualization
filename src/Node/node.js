@@ -276,7 +276,7 @@ export class Node {
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
-        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+        let shapes = elem.filter(e => !e.isDeleted && e.type !== "text");
     
         if (shapes.length === 0) {
             this.rightContainerElement = null; // If no shapes are found, set containerElement to null
@@ -286,6 +286,7 @@ export class Node {
         // Find the shape with the leftmost point (smallest x coordinate)
         let leftmostShape = shapes.reduce((leftShape, currentShape) => {
             // Compare the leftmost point of each shape (x position)
+            // console.log("reduce left", currentShape.type+ currentShape.x + currentShape.width,leftShape.type+ leftShape.x + leftShape.width)
             return currentShape.x < leftShape.x ? currentShape : leftShape;
         });
     
@@ -300,18 +301,19 @@ export class Node {
         if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
         let elem = this.json;
-    
+        console.log("elem",elem)
         // Filter the elements to find only ellipses or rectangles
-        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
-    
+        let shapes = elem.filter(e => !e.isDeleted && e.type !== "text");
         if (shapes.length === 0) {
             this.leftContainerElement = null; // If no shapes are found, set containerElement to null
             return null;
         }
-    
+        
+        console.log("shapes",shapes)
         // Find the shape with the rightmost point (largest x + width)
         let rightmostShape = shapes.reduce((rightShape, currentShape) => {
             // Compare the rightmost point of each shape (x + width)
+            // console.log("reduce", currentShape.type+ currentShape.x + currentShape.width,rightShape.type+ rightShape.x + rightShape.width)
             return (currentShape.x + currentShape.width) > (rightShape.x + rightShape.width) ? currentShape : rightShape;
         });
     

@@ -131,11 +131,11 @@ export function createExcalidrawJSON(graph) {
                         let start = arrowsPointsStart.rightPoint; // Point de départ (middle right du rectangle)
                         let end = arrowsPointsStop.leftPoint; // Point d'arrivée (middle left du rectangle)
 
-                        arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForLeftmost(), neighbor.getNodeIdForRightmost());
+                        arrowElement = ArrowGenerator.createArrowJsonWithBindings(start, end, node.getNodeIdForRightmost(), neighbor.getNodeIdForLeftmost());
                         
                         // Ajouter la flèche aux boundElements des noeuds (right point of the current node / left point of neighbor )
-                        addBoundedElement(node.getRigthContainerElement(), arrowElement);
-                        addBoundedElement(neighbor.getLeftContainerElement(), arrowElement);
+                        addBoundedElement(node.getLeftContainerElement(), arrowElement);
+                        addBoundedElement(neighbor.getRigthContainerElement(), arrowElement);
                         // Ajouter la flèche aux éléments
                     }
                     elements.push(arrowElement);
