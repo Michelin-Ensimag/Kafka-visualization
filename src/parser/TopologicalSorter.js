@@ -40,9 +40,7 @@ class TopologicalSorter {
         
         // Find all nodes with zero in-degree
         let lowestSubtopology = Math.min(...Array.from(inDegree.keys()).map(node => node.getTopology()));
-        console.log("lowestSubtopology", lowestSubtopology);
         for (const [node, degree] of inDegree.entries()) {
-            console.log(degree, node.getTopology(), node.getName());
             if (degree === 0 && node.getTopology() === lowestSubtopology) {
                 queue.push(node);
             }
@@ -76,7 +74,6 @@ class TopologicalSorter {
             for (let neighbor of current.getNeighbors()) {
                 // Update distance
                 const max = Math.max(distances.get(neighbor), distances.get(current) + 1, previousSubtopologyMax+1);
-                console.log("max", max);
                 distances.set(neighbor, max);
 
                 // Decrement in-degree
@@ -96,12 +93,10 @@ class TopologicalSorter {
                     }
                 }
             }
-            console.log("subtopologyCount", subtopologyCount);
             //if all the nodes of a current subtopology are processed, we can process the nodes of the next subtopology
             if (subtopologyCount.get(current.getTopology()) === 0 && nodesToProcess.has(current.getTopology()+1)) {
                 // process the nodes of the next subtopology (suppose que la topologie suivante est a l'index +1)
                 previousSubtopologyMax = distances.get(current);
-                console.log("previousSubtopologyMax", previousSubtopologyMax);
                 for (const node of nodesToProcess.get(current.getTopology()+1)) {
                     queue.push(node);
                 }
@@ -112,7 +107,6 @@ class TopologicalSorter {
             if (queue.length === 0 && nodesToProcess.has(current.getTopology())) {
             }
             if (queue.length === 0 && nodesToProcess.has(current.getTopology()+1)) {
-                console.log("queue.length === 0 && nodesToProcess.has(current.getTopology()+1)");
                 for (const node of nodesToProcess.get(current.getTopology()+1)) {
                     queue.push(node);
                 }
@@ -125,13 +119,6 @@ class TopologicalSorter {
                 console.log("node not processed", node.getName(),node);
             }
         }
-
-        // Check if all nodes were processed (no cycles)
-        // if (sortedNodes.length !== inDegree.size) {
-        //     throw new Error("Graph contains a cycle");
-        // }
-        console.log("sortedNodes.length", sortedNodes.length, "inDegree.size", inDegree.size);
-        
         
 
         // Post-process StateStore nodes

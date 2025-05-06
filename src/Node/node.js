@@ -7,7 +7,7 @@ export class Node {
 
     constructor(label, node = false) {
         this.label = label;
-        this.neighbors = new Set();
+        this.neighbors = new Array();
         this.json = null;
         this.leftContainerElement = {}
         this.rightContainerElement = {}
@@ -33,7 +33,15 @@ export class Node {
     }
 
     addNeighbor(node) {
-        this.neighbors.add(node);
+        if (!this.neighbors.includes(node)){
+            this.neighbors.push(node);
+        }
+
+    }
+
+    addSubTopology(node){
+        //USED ONLY FOR SUB-TOPOLOGIES
+        this.neighbors.unshift(node);
     }
 
     getNeighbors() {
@@ -91,7 +99,7 @@ export class Node {
 
     getBoundaryPoints() {
         if (!this.json || this.json.length === 0) {
-            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 }, topPoint: { x: 0, y: 0 }, bottomPoint: { x: 0, y: 0 } };
         }
 
         // Initialize min/max values
@@ -119,16 +127,48 @@ export class Node {
             });
             // Calculate middle Y-coordinate
             const middleY = minY + (maxY - minY) / 2;
+            const middleX = minX + (maxX - minX) / 2;
     
             // Return the two points
             return {
                 leftPoint: { x: minX, y: middleY },
-                rightPoint: { x: maxX, y: middleY }
+                rightPoint: { x: maxX, y: middleY },
+                topPoint: { x: middleX, y: minY },
+                bottomPoint: { x: middleX, y: maxY }
             };
         }
         catch (error) {
+            return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 }, topPoint: { x: 0, y: 0 }, bottomPoint: { x: 0, y: 0 } };
+        }
+    }
+
+    getBottomRightCorner(){
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        // Iterate through this.json to find boundaries
+        try{
+
+            this.json.forEach((element) => {
+                if (element.isDeleted) return; // Skip deleted elements
+    
+                const xRight = element.x + element.width;
+                const yBottom = element.y + element.height;
+    
+                // Update min/max X and Y
+                maxX = Math.max(maxX, xRight);
+                maxY = Math.max(maxY, yBottom);
+
+            });
+    
+            // Return the two points
+            return {x:maxX,y:maxY};
+        }
+        catch (error) {
+            console.log("erreur");
             return { leftPoint: { x: 0, y: 0 }, rightPoint: { x: 0, y: 0 } };
         }
+
     }
 
 
@@ -230,7 +270,6 @@ export class Node {
     }
 
     getNodeIdForLeftmost() {
-        console.log(this.json)
         if(!this.json || this.json.length === 0) return null;
         // Assuming `this.json` contains the array of elements
 
@@ -283,8 +322,56 @@ export class Node {
         return rightmostShape.id;
     }
 
-    getContainerElement(){
-        return this.containerElement
+    getNodeIdForBottomMost() {
+        if(!this.json || this.json.length === 0) return null;
+        // Assuming `this.json` contains the array of elements
+        let elem = this.json;
+    
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.leftContainerElement = null; // If no shapes are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the rightmost point (largest y + height)
+        let bottomMostShape = shapes.reduce((bShape, currentShape) => {
+            // Compare the rightmost point of each shape (y + height)
+            return (currentShape.y + currentShape.height) > (bShape.y + bShape.height) ? currentShape : bShape;
+        });
+    
+        // Set this.containerElement to the rightmost shape element
+        this.leftContainerElement = bottomMostShape;
+    
+        // Return the ID of the rightmost shape
+        return bottomMostShape.id;
+    }
+
+    getNodeIdForTopMost() {
+        if(!this.json || this.json.length === 0) return null;
+        // Assuming `this.json` contains the array of elements
+        let elem = this.json;
+    
+        // Filter the elements to find only ellipses or rectangles
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+    
+        if (shapes.length === 0) {
+            this.leftContainerElement = null; // If no shapes are found, set containerElement to null
+            return null;
+        }
+    
+        // Find the shape with the rightmost point (largest x + width)
+        let topmostShape = shapes.reduce((tShape, currentShape) => {
+            // Compare the rightmost point of each shape (x + width)
+            return currentShape.y < tShape.y ? currentShape : tShape;
+        });
+    
+        // Set this.containerElement to the rightmost shape element
+        this.rightContainerElement = topmostShape;
+    
+        // Return the ID of the rightmost shape
+        return topmostShape.id;
     }
 
     getRigthContainerElement(){
@@ -299,7 +386,6 @@ export class Node {
         if(!this.isFullNode) return;
         for (let i = 0; i < this.json.length; i++) {
             let elem = this.json[i];
-            //console.log(elem,elem.type)
             if (elem.type === "text" &&( elem.originalText == "Default" || elem.text == "Default")) {
                 elem.text = this.label;
                 elem.originalText = this.label;

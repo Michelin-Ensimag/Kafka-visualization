@@ -3,28 +3,28 @@ import kstdlibJSON from "../../assets/kafka-streams-topology-design.json"
 import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
 import { generateDictionary } from "@/parser/dictionary";
 
-export class Topology extends Node{
+export class SubTopology extends Node{
     constructor(label) {
         super(label);
     }
 
     getName(){
-        return "Topology"
+        return "Sub-topology";
     }
+
 
     generateJson(xtop, ytop,xbottom,ybottom){
         let dictionary = generateDictionary();
-                
-                this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));        
-                
-                let elem = this.json
-                let elem_temp = convertToExcalidrawElements([elem])[0]
-                if (elem["type"] === "text") {
-                    elem["baseline"] = elem_temp["baseline"]
-                }
-                return this.json
-            }
-
+        
+        this.json =  this.updateElementIds( this.repositionElements(dictionary[this.getName()], xtop, ytop,xbottom-xtop,ybottom-ytop));        
+        
+        let elem = this.json
+        let elem_temp = convertToExcalidrawElements([elem])[0]
+        if (elem["type"] === "text") {
+            elem["baseline"] = elem_temp["baseline"]
+        }
+        return this.json
+    }
 
     repositionElements(elements, newX, newY,newWidth,newHeight) {
         // Créer une copie profonde du tableau pour éviter de modifier l'original
@@ -55,14 +55,13 @@ export class Topology extends Node{
                 elem.height=newHeight;
         
             if (elem.type =="text"){
-                elem.text="Topology";
-                elem.originalText="Topology";
+                elem.text=this.label;
+                elem.originalText=this.label;
                 console.log(elem.text, elem.originalText,this.label);
                 elem.height =25;
-                elem.width=150;
+                elem.width=70;
             }
         }
-        
         return newElements;
     }
 }
