@@ -328,7 +328,7 @@ export class Node {
         let elem = this.json;
     
         // Filter the elements to find only ellipses or rectangles
-        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle'); // Adjust 'rect' if needed
+        let shapes = elem.filter(e => e.type === 'ellipse' || e.type === 'rectangle' || e.type === "text"); // Adjust 'rect' if needed
     
         if (shapes.length === 0) {
             this.leftContainerElement = null; // If no shapes are found, set containerElement to null

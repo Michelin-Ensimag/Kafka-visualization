@@ -53,7 +53,7 @@ function getOrCreateNode(name, type) {
                 node = new TopicAdvanced(processedName);
                 break;
             case 'sub-topology':
-                console.log(processedName);
+                // console.log(processedName);
                 node = new SubTopology(processedName);
                 break;
             case 'kstream-filter':
@@ -197,9 +197,9 @@ function extractTopics(line) {
         const limitIdx = t.indexOf('STATE'); // Find the position of State
         if (limitIdx !== -1) {
             // get te substring plus the last number
-            t = t.substring(0, limitIdx) + t.substring(limitIdx + 20).trim(); 
+            t = t.substring(0, limitIdx) + '(' + t.substring(limitIdx + 20).trim() + ')'; 
         }
-        console.log("store",t);
+        // console.log("store",t);
         return t;
     }).filter(t => t);
     }
@@ -220,7 +220,7 @@ function extractTopics(line) {
 
 function processLine(line) {
     let match;
-    console.log(line);
+    // console.log(line);
     if ((match = line.match(/^Source:\s+(\S+)/))) {
         createNodeWithTopics(match[1], 'source', line);
     } else if ((match = line.match(/^Processor:\s+(\S+)/))) {
