@@ -2,7 +2,7 @@ import { TopologicalSorter } from './TopologicalSorter.js';
 import { ArrowGenerator } from "./ArrowGenerator.js";
 import { node } from 'globals';
 
-export function createExcalidrawJSON(graph) {
+export function createExcalidrawJSON(graph,drawTopologies=true,drawSubTopologies=true) {
     let elements = [];
     const result = TopologicalSorter.topologicalSort(graph);
 
@@ -66,7 +66,9 @@ export function createExcalidrawJSON(graph) {
                     currentSub = current;
                 }
                 else {
-                    currentSub.generateJson(xtop, ytop, xbottom, ybottom);
+                    if (drawSubTopologies){
+                        currentSub.generateJson(xtop, ytop, xbottom, ybottom);
+                    }
                     xtop = -Infinity;
                     ytop = -Infinity;
                     xbottom = Infinity;
@@ -108,15 +110,23 @@ export function createExcalidrawJSON(graph) {
         currentX += maxWidth + horizontalSpacing;
     }
 
-    currentSub.generateJson(xtop, ytop, xbottom, ybottom);
-    topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
+    if(drawSubTopologies){
+        currentSub.generateJson(xtop, ytop, xbottom, ybottom);
+    }
+    if(drawTopologies){
+        topologyNode.generateJson(xtopTopology, ytopTopology, xbottomTopology, ybottomTopology);
+    }
+
 
 
     // Créer les flèches
     
     for (let node of result.sortedNodes) {
-        if ((node.getName() == 'Topology' || node.getName() == 'Sub-topology')) {
+        if ((node.getName() == 'Topology' &&drawTopologies)) {
             elements.push(...node.getJson());
+        }
+        else if(node.getName()=="Sub-topology"&&drawSubTopologies){
+            elements.push(...node.getJson());          
         }
         
     }
