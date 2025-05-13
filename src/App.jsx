@@ -17,12 +17,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-
+import { Checkbox } from "@/components/ui/checkbox"
 const App = () => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [text, setText] = useState('');
   const [excalidrawLibrary] = useState(null);
+  const [checkedTopo, setCheckedTopo] = useState(true);
+  const [checkedSubTopo, setCheckedSubTopo] = useState(true);
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
@@ -38,7 +40,7 @@ const App = () => {
     event.preventDefault();
     let start=Date.now();
     let topos = convertTopoToGraph(text);
-    let elements = createExcalidrawJSON(topos)
+    let elements = createExcalidrawJSON(topos, checkedTopo, checkedSubTopo);
     let sceneData = {
       elements,
       appState: {
@@ -74,8 +76,14 @@ const App = () => {
         </textarea>
         <button className="border dark:text-white hover:dark:bg-gray-800 p-1 rounded-md cursor-pointer hover:bg-gray-100" onClick={onSubmit}>
           Update Scene
-
         </button>
+        <div className="flex items-center">
+          <Checkbox id="showTopo" className="mr-2" defaultChecked onCheckedChange={setCheckedTopo}/>
+          <label htmlFor="showTopo" className="text-sm dark:text-white">Draw Topologie background</label>
+          <Checkbox id="showSubTopo" className="mr-2" defaultChecked onCheckedChange={setCheckedSubTopo}/>
+          <label htmlFor="showSubTopo" className="text-sm dark:text-white">Draw Sub-Topologies background</label>
+        </div>
+
         <div className="flex items-center">
 
           <button className="border p-1 mr-2 dark:text-white hover:dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-100" onClick={toggleTheme} >
