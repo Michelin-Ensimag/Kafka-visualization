@@ -108,7 +108,7 @@ const App = () => {
                 </AlertDialogDescription>
                 <AlertDialogTitle>Developpers</AlertDialogTitle>
                 <AlertDialogDescription>
-                  <a className="underline text-blue-500" href="https://euzeby.com/">R4ph3uz</a>, <a className="underline text-blue-500" href="https://github.com/Ashilion">Hugo</a>, Raphael, <a className="underline text-blue-500" href="https://github.com/dydyhg">Dylan</a>.
+                  <a className="underline text-blue-500" href="https://euzeby.com/">R4ph3uz</a>, <a className="underline text-blue-500" href="https://github.com/Ashilion">Hugo</a>, <a className="underline text-blue-500" href="https://github.com/Trixciel">Raphael</a>, <a className="underline text-blue-500" href="https://github.com/dydyhg">Dylan</a>.
                   Special Thanks for <span className="font-semibold"> Sebastien Viale</span> from Michelin.
                 </AlertDialogDescription>
               </AlertDialogHeader>
