@@ -65,7 +65,7 @@ const App = () => {
   return (
     <div className="flex flex-col w-full flex-grow h-full bg-white dark:bg-[#161616] md:flex-row" >
       <div className="flex-1 p-8 border-r flex flex-col gap-2 max-h-[40vh] md:max-h-[100vh] h-[40vh] md:h-auto">
-        <h1 className="text-xl dark:text-white"> KAFKA STREAM VISUALISATION</h1>
+        <h1 className="text-xl dark:text-white"> KAFKA STREAM VISUALIZATION</h1>
         <p className="mt-4 dark:text-white">Enter kafka topology .describe() : </p>
         <textarea id="topo"
           className="flex h-[40vh] md:h-auto md:min-h-[20vh] md:max-h-[60vh] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
