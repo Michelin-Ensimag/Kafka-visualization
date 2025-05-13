@@ -99,7 +99,7 @@ const App = () => {
               <AlertDialogHeader>
                 <AlertDialogTitle>We are happy to share to you this new tool</AlertDialogTitle>
                 <AlertDialogDescription>
-                  The idea of the project was imagined by <a className="underline text-blue-500" href="https://blogit.michelin.io/">Michelin</a> and developped by <a className="underline text-blue-500" href="">Ensimag</a> students.
+                  The idea of the project was imagined by <a className="underline text-blue-500" href="https://blogit.michelin.io/">Michelin</a> and developped by <a className="underline text-blue-500" href="https://ensimag.grenoble-inp.fr/">Ensimag</a> students.
                   Indeed before this tool, the kafka topologies were hard to visualize (<a className="underline text-blue-500" href="https://github.com/zz85/kafka-streams-viz/">zz85</a> ;-) )  and we wanted to make it easier for you.
                 </AlertDialogDescription>
                 <AlertDialogTitle>Open Source</AlertDialogTitle>
