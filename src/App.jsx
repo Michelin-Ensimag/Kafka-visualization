@@ -80,7 +80,9 @@ const App = () => {
         <div className="flex items-center">
           <Checkbox id="showTopo" className="mr-2" defaultChecked onCheckedChange={setCheckedTopo}/>
           <label htmlFor="showTopo" className="text-sm dark:text-white">Draw Topologie background</label>
-          <Checkbox id="showSubTopo" className="mr-2" defaultChecked onCheckedChange={setCheckedSubTopo}/>
+        </div>
+        <div className="flex items-center">
+        <Checkbox id="showSubTopo" className="mr-2" defaultChecked onCheckedChange={setCheckedSubTopo}/>
           <label htmlFor="showSubTopo" className="text-sm dark:text-white">Draw Sub-Topologies background</label>
         </div>
 
